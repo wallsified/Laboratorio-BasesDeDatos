@@ -66,3 +66,64 @@ INSERT INTO employee_projects (employee_id, project_id) VALUES (1, 1);
 INSERT INTO employee_projects (employee_id, project_id) VALUES (2, 2);
 INSERT INTO employee_projects (employee_id, project_id) VALUES (3, 3);
 INSERT INTO employee_projects (employee_id, project_id) VALUES (1, 2);
+
+-- Paso #3: Manipulación de Datos
+-- Ejercicio 1: Actualiza el departamento de Ana García a IT
+UPDATE
+    employees
+SET
+    department_id = 3
+WHERE
+    employee_id = 2;
+
+-- Ejercicio 2: Elimina el registro del proyecto "Rediseño Sitio Web" y todos los registros relacionados en la tabla "employee_projects"
+DELETE FROM
+    employee_projects
+WHERE
+    project_id = (
+        SELECT
+            project_id
+        FROM
+            projects
+        WHERE
+            project_name = 'Rediseño Sitio Web'
+    );
+
+DELETE FROM
+    projects
+WHERE
+    project_name = 'Rediseño Sitio Web';
+
+-- Ejercicio 3: Agrega una nueva columna "email" a la tabla "employees" si no existe
+ALTER TABLE
+    employees
+ADD
+    email VARCHAR2(100);
+
+-- Ejercicio 4: Inserta los correos electrónicos correspondientes para cada empleado
+UPDATE
+    employees
+SET
+    email = 'juan.perez@empresa.com'
+WHERE
+    employee_id = 1;
+
+UPDATE
+    employees
+SET
+    email = 'ana.garcia@empresa.com'
+WHERE
+    employee_id = 2;
+
+UPDATE
+    employees
+SET
+    email = 'luis.martinez@empresa.com'
+WHERE
+    employee_id = 3;
+
+-- Ejercicio 5: Elimina la tabla "employee_projects"
+
+DROP TABLE employee_projects;
+
+-- Justificación: En un contexto real, eliminar la tabla "employee_projects" podría ser necesario si se decide cambiar la estructura de la base de datos o si se adopta un nuevo sistema de gestión que maneje las relaciones entre empleados y proyectos de manera diferente.
