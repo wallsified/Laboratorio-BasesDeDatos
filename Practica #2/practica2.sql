@@ -100,3 +100,25 @@ DROP TABLE employee_projects;
 -- Justificación: En un contexto real, eliminar la tabla "employee_projects" podría ser necesario si se decide 
 -- cambiar la estructura de la base de datos o si se adopta un nuevo sistema de gestión que maneje las relaciones 
 -- entre empleados y proyectos de manera diferente.
+-- Paso #4: Demostración de la Integridad Referencial
+-- 1. Intenta eliminar un registro de la tabla departments que esté referenciado en la tabla employees:
+ DELETE FROM departments WHERE department_id = 1;
+
+-- 2. Observa el error de consistencia generado y describe el comportamiento:
+-- Deberías recibir un error similar a:
+-- ORA-02292: integrity constraint (SCHEMA.FK_DEPARTMENT) violated - child record found
+
+-- Este error ocurre debido a que con la línea anterior se está tratando de eliminar una instancia de la que dependen referencias secundarias, si esto pasara se perdería la consistencia de la base de datos.
+
+
+-- 3. Ahora, explica qué deberíamos hacer para poder eliminar todo un departamento. (+0.5 por explicación correcta/ +1.0 con operaciones en sintaxis de SQL)
+-- Lo que debería hacerse es eliminar primero las dependecias del registro padre y ya que todas estas estén eliminadas podría eliminarse el registro padre. Primero sería el registro emplyees porque este depende de depertments
+
+ALTER TABLE employees DROP CONSTRAINT fk_department;
+ALTER TABLE  employees 
+ADD  CONSTRAINT fk_department
+	    FOREIGN KEY (department_id) 
+        REFERENCES departments(department_id)
+        ON DELETE CASCADE;
+
+
