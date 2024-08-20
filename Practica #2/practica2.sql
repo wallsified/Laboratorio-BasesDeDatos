@@ -25,17 +25,23 @@ CREATE TABLE employees (
 -- 3. Creación de una Tabla "projects" para gestionar los proyectos de los empleados.
 CREATE TABLE projects (
     project_id NUMBER PRIMARY KEY,
+    -- Se considera como variable no nula para siempre tener un nombre para referirse al proyecto.
     project_name VARCHAR2(100) NOT NULL,
     start_date DATE,
     end_date DATE
 );
 
 -- 4. Tabla Relación "Employees"-"Projects"
+--
+-- Usar el nombre 'employee-projects' vuelve mas mnemotecnica el nombre 
+-- de la relacion 
 CREATE TABLE employee_projects (
     employee_id NUMBER,
     project_id NUMBER,
-    role VARCHAR2(50) DEFAULT 'Por Definir',-- Almacenar el rol del empleado en el proyecto.
+    -- Almacenar el rol del empleado en el proyecto.
+    role VARCHAR2(50) DEFAULT 'Por Definir',
     PRIMARY KEY (employee_id, project_id),
+    -- Restricciones para siempre tener a donde referenciar informacion.
     CONSTRAINT fk_employee
         FOREIGN KEY (employee_id) 
         REFERENCES employees(employee_id),
@@ -49,6 +55,7 @@ CREATE TABLE employee_projects (
 -- 1. Insertar datos en 'departments'
 INSERT INTO departments (department_id, department_name) VALUES (1, 'Recursos Humanos');
 INSERT INTO departments (department_id, department_name) VALUES (2, 'Finanzas');
+-- Insertamos el departamento IT como la 2-tupla de valores (3, 'IT) 
 INSERT INTO departments (department_id, department_name) VALUES (3, 'IT');
 
 -- 2. Insertar datos en 'employees'
@@ -57,6 +64,8 @@ INSERT INTO employees (employee_id, first_name, last_name, department_id) VALUES
 INSERT INTO employees (employee_id, first_name, last_name, department_id) VALUES (3, 'Luis', 'Martı́nez', 3);
 
 -- 3. Insertar proyectos 'Implementacion de ERP', 'Rediseño Sitio Web', 'Migración a la Nube'
+--
+-- Los valores se agregan en 2-tuplas (numero-id, nombre). 
 INSERT INTO projects (project_id, project_name) VALUES (1, 'Implementación de ERP');
 INSERT INTO projects (project_id, project_name) VALUES (2, 'Rediseño Sitio Web');
 INSERT INTO projects (project_id, project_name) VALUES (3, 'Migración a la Nube');
@@ -69,11 +78,19 @@ INSERT INTO employee_projects (employee_id, project_id) VALUES (1, 2);
 
 -- Paso #3: Manipulación de Datos
 --
--- Ejercicio 1: Actualiza el departamento de Ana García a IT
+-- 1. Actualiza el departamento de Ana García a IT
+--
+-- Al ser una actualizacion de valores, usamos UPDATE y WHERE. 
+-- El primero como la instruccion principal y el segundo para indicar
+-- donde se realiza la accion. En este caso, en el employee_id = 2.
 UPDATE employees SET department_id = 3 WHERE employee_id = 2;
 
--- Ejercicio 2: Elimina el registro del proyecto "Rediseño Sitio Web" y todos los registros relacionados en la 
+-- 2. Elimina el registro del proyecto "Rediseño Sitio Web" y todos los registros relacionados en la 
 -- tabla "employee_projects"
+--
+-- Primero se debe eliminar el proyecto de 'employee-projects' y posteriormente de 
+-- 'projects'. Anidamos un SELECT en la primera instruccion para tener identificada
+-- la clave foranea del proyecto en cuestion en su tabla original. 
 DELETE FROM employee_projects WHERE
 	project_id = (
         SELECT
@@ -86,21 +103,26 @@ DELETE FROM employee_projects WHERE
 
 DELETE FROM projects WHERE project_name = 'Rediseño Sitio Web';
 
--- Ejercicio 3: Agrega una nueva columna "email" a la tabla "employees" si no existe
+-- 3. Agrega una nueva columna "email" a la tabla "employees" si no existe
+--
+-- Se ocupa el comando ALTER TABLE y despues indicamos el nombre y el tipo de
+-- valor que va a ocupar la columna nueva. 
 ALTER TABLE employees ADD email VARCHAR2(100);
 
--- Ejercicio 4: Inserta los correos electrónicos correspondientes para cada empleado
+-- 4. Inserta los correos electrónicos correspondientes para cada empleado
 UPDATE employees SET email = 'juan.perez@empresa.com' WHERE employee_id = 1;
 UPDATE employees SET email = 'ana.garcia@empresa.com' WHERE employee_id = 2;
 UPDATE employees SET email = 'luis.martinez@empresa.com' WHERE employee_id = 3;
 
--- Ejercicio 5: Elimina la tabla "employee_projects"
+-- 5. Elimina la tabla "employee_projects"
 DROP TABLE employee_projects;
 
 -- Justificación: En un contexto real, eliminar la tabla "employee_projects" podría ser necesario si se decide 
 -- cambiar la estructura de la base de datos o si se adopta un nuevo sistema de gestión que maneje las relaciones 
 -- entre empleados y proyectos de manera diferente.
+
 -- Paso #4: Demostración de la Integridad Referencial
+-- 
 -- 1. Intenta eliminar un registro de la tabla departments que esté referenciado en la tabla employees:
  DELETE FROM departments WHERE department_id = 1;
 
