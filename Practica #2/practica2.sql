@@ -135,11 +135,12 @@ DROP TABLE employee_projects;
 
 -- 3. Ahora, explica qué deberíamos hacer para poder eliminar todo un departamento. (+0.5 por explicación correcta/ +1.0 con operaciones en sintaxis de SQL)
 -- Lo que debería hacerse es eliminar primero las dependecias del registro padre y ya que todas estas estén eliminadas podría eliminarse el registro padre. Primero sería el registro emplyees porque este depende de depertments
-
+-- Al existir una condición precedente en employees, eliminamos dicha condición primero
 ALTER TABLE employees DROP CONSTRAINT fk_department;
+-- Agregamos la nueva condición y añadimos ON DELETE CASCADE para que al querer eliminar un registro padre se eliminen los hijos y así se mantenga la integridad referencial.
 ALTER TABLE  employees 
 ADD  CONSTRAINT fk_department
-	    FOREIGN KEY (department_id) 
+	FOREIGN KEY (department_id) 
         REFERENCES departments(department_id)
         ON DELETE CASCADE;
 
