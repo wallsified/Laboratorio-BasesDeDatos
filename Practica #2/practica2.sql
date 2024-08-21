@@ -121,10 +121,24 @@ DROP TABLE employee_projects;
 -- cambiar la estructura de la base de datos o si se adopta un nuevo sistema de gestión que maneje las relaciones 
 -- entre empleados y proyectos de manera diferente.
 
+-- Paso #4: Consultas con Condiciones
+
+-- 1. Realiza una consulta para listar todos los empleados que trabajan en el departamento de IT:
+SELECT * FROM employees WHERE department_id = 3;
+
+-- 2. Realiza una consulta para encontrar los empleados que no están asignados a ningún proyecto:
+SELECT * FROM employees WHERE employee_id NOT IN (SELECT employee_id FROM employee_projects);
+
+-- 3. Realiza una consulta para listar todos los departamentos que tienen menos de 2 empleados:
+SELECT department_id, COUNT(*) as num_employees 
+FROM employees 
+GROUP BY department_id 
+HAVING COUNT(*) < 2;
+
 -- Paso #4: Demostración de la Integridad Referencial
--- 
+
 -- 1. Intenta eliminar un registro de la tabla departments que esté referenciado en la tabla employees:
- DELETE FROM departments WHERE department_id = 1;
+DELETE FROM departments WHERE department_id = 1;
 
 -- 2. Observa el error de consistencia generado y describe el comportamiento:
 -- Deberías recibir un error similar a:
@@ -132,16 +146,15 @@ DROP TABLE employee_projects;
 
 -- Este error ocurre debido a que con la línea anterior se está tratando de eliminar una instancia de la que dependen referencias secundarias, si esto pasara se perdería la consistencia de la base de datos.
 
-
 -- 3. Ahora, explica qué deberíamos hacer para poder eliminar todo un departamento. (+0.5 por explicación correcta/ +1.0 con operaciones en sintaxis de SQL)
 -- Lo que debería hacerse es eliminar primero las dependecias del registro padre y ya que todas estas estén eliminadas podría eliminarse el registro padre. Primero sería el registro emplyees porque este depende de depertments
 -- Al existir una condición precedente en employees, eliminamos dicha condición primero
 ALTER TABLE employees DROP CONSTRAINT fk_department;
 -- Agregamos la nueva condición y añadimos ON DELETE CASCADE para que al querer eliminar un registro padre se eliminen los hijos y así se mantenga la integridad referencial.
-ALTER TABLE  employees 
-ADD  CONSTRAINT fk_department
-	FOREIGN KEY (department_id) 
-        REFERENCES departments(department_id)
-        ON DELETE CASCADE;
+ALTER TABLE employees 
+ADD CONSTRAINT fk_department
+    FOREIGN KEY (department_id) 
+    REFERENCES departments(department_id)
+    ON DELETE CASCADE;
 
 
