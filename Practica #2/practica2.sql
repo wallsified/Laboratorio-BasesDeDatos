@@ -135,7 +135,7 @@ FROM employees
 GROUP BY department_id 
 HAVING COUNT(*) < 2;
 
--- Paso #4: Demostración de la Integridad Referencial
+-- Paso #5: Demostración de la Integridad Referencial
 
 -- 1. Intenta eliminar un registro de la tabla departments que esté referenciado en la tabla employees:
 DELETE FROM departments WHERE department_id = 1;
