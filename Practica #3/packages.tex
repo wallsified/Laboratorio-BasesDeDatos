@@ -1,0 +1,128 @@
+% Definición del documeto
+\documentclass[11pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+% Margenes del documeto
+\usepackage[left=2cm,right=2cm,top=1.8cm,bottom=2.3cm]{geometry}
+\usepackage{fancyhdr}
+% Imágenes
+\usepackage{epsfig,graphicx}
+\usepackage[demo]{graphicx}
+\usepackage{subfig}
+% Matemáticas
+\usepackage{enumitem}
+\usepackage{upgreek}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+% Referencias 
+\usepackage{hyperref}
+\usepackage{url}
+% Código
+\usepackage{minted}
+\usemintedstyle{borland}
+\usepackage{mdframed}
+\setminted[python]{breaklines}
+% Colores y figuras
+\usepackage{xcolor}
+\usepackage{tcolorbox,tikzlings}
+\tcbuselibrary{skins,xparse,listings}
+\usepackage{color, colortbl}
+% Secciones
+\usepackage{titlesec}
+\titlelabel{\thetitle.\quad}
+% Modificar comandos
+\usepackage{multicol, array}
+\usepackage{xpatch, calc}
+
+% ================ Ubuntu Terminal ================ %
+
+
+\newtcblisting{ubuntu}{colback=blue!30!black,
+colupper=white,colframe=gray!65!black,listing only,
+listing options={style=tcblatex,language=sh,escapeinside=``,},
+title={\textcolor{red}{\Huge{$\bullet$}}{\textcolor{gray}{\Huge{$\bullet\bullet$}}}},
+every listing line={\MyUbuntuPrompt}}
+\pgfkeys{/ubuntu/.cd,
+user/.code={\gdef\MyUbuntuUser{#1}},user={},
+host/.code={\gdef\MyUbuntuHost{#1}},host={},
+color/.code={\gdef\MyUbuntuColor{#1}},color=red,
+prompt char/.code={\gdef\MyUbuntuPromptChar{#1}},prompt char= \,\,,
+root/.style={user=root,host=unam,color=lime,prompt char=\$},
+fac/.style={user={unam},host=Practica1,color=lime,prompt char=\$},
+}
+\newcommand{\SU}[1]{\pgfkeys{/ubuntu/.cd,#1}%
+\gdef\MyUbuntuPrompt{\textcolor{\MyUbuntuColor}{\small\ttfamily\bfseries \textcolor{cyan}{\MyUbuntuUser}\textcolor{white}{@}\MyUbuntuHost{\textcolor{white}>}\textcolor{lime}{\url{}}{\textcolor{white}\MyUbuntuPromptChar}}}}
+\newcommand{\StartConsole}{\gdef\MyUbuntuPrompt{}}
+\SU{user=fciencias,host=dha,color=cyan}
+
+\newcommand{\quotebox}[1]{\begin{center}\fcolorbox{white}{blue!15!gray!15}{\begin{minipage}{0.9\linewidth}\vspace{10pt}\center\begin{minipage}{0.8\linewidth}{\space\Huge``}{#1}{\hspace{1.5em}\break\null\Huge\hfill''}\end{minipage}\smallbreak\end{minipage}}\end{center}}
+
+% ================ Colored Quotation ================ %
+\newsavebox{\coloredquotationbox}
+\newenvironment{coloredquotation}
+ {%
+  \begin{trivlist}
+  \begin{lrbox}{\coloredquotationbox}
+  \begin{minipage}{\dimexpr\linewidth-2\fboxsep}
+ }
+ {%
+  \end{minipage}
+  \end{lrbox}
+  \item\relax
+  \parbox{\linewidth}{
+    \begingroup
+    \color[RGB]{16,38,148}%
+    \hrule
+    \color[RGB]{16,38,148}%
+    \hrule
+    \color[RGB]{16,38,148}%
+    \hrule
+    \endgroup
+    \colorbox[RGB]{199,227,253}{\usebox{\coloredquotationbox}}\par\nointerlineskip % Cambiar el color aquí
+    \begingroup
+    \color[RGB]{16,38,148}%
+    \hrule
+    \color[RGB]{16,38,148}%
+    \hrule
+    \color[RGB]{16,38,148}%
+    \hrule
+    \endgroup
+  }
+  \end{trivlist}
+ }
+
+% Columnas ara el header
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+\newcolumntype{R}[1]{>{\arraybackslash}m{#1}}
+
+% ================ Header ================ %
+ \newcommand{\thesubject}%
+	{Fundamentos de Bases de Datos}
+
+\newcommand{\firstinstitute}%
+	{Facultad de Ciencias}
+	
+\newcommand{\shortinstitute}%
+	{Facultad de Ciencias, UNAM}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[l]{%
+    \begin{tabular}
+        {@{}R{2.25em}@{}R{\widthof{\shortinstitute\ }}}
+        \includegraphics[height=.25in]{logos/fcunam.png} & \shortinstitute
+    \end{tabular}
+}
+\fancyhead[r]{%
+    \textit{\thesubject}
+}
+
+\fancyfoot[c]{%
+    \begin{tabular}
+        {M{1em}@{}M{2em}@{}M{1em}}
+	\textcolor{black}{$\boldsymbol{-}$} & \thepage &
+        \textcolor{black}{$\boldsymbol{-}$}
+    \end{tabular}
+}

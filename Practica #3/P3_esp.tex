@@ -1,0 +1,177 @@
+\include{packages}
+\begin{document}
+\thispagestyle{empty}
+\rule{17cm}{0.1mm}
+\begin{center}
+    \begin{minipage}{3cm}
+        \begin{center}
+    	\includegraphics[height=3.5cm]{logos/Logo_UNAM.png}
+        \end{center}
+    \end{minipage}\hfill
+    \begin{minipage}{10cm}
+        \begin{center}
+            \textbf{\large Universidad Nacional Autónoma de México}\\[0.1cm]
+            \textbf{\large Facultad de Ciencias}\\[0.2cm]          
+            \Large \textbf{Fundamentos de Bases de Datos}\\[0.2cm]
+            \LARGE \textbf{Práctica 3}  \\[0.1cm]
+            \Large \textbf{Creación de Tablas Complejas y Consultas Avanzadas}  \\[0.1cm]
+            \vspace{0.2cm}
+            \small 
+                Autor: Arroyo Martínez Erick Daniel  \\[0.1cm] 
+        \end{center}
+    \end{minipage}\hfill
+    \begin{minipage}{3cm}
+        \begin{center}
+            \includegraphics[height=3.5cm]{logos/Logo_FC.png}
+        \end{center}
+    \end{minipage}
+\end{center}
+
+\rule{17cm}{0.1mm}
+
+\section*{Introducción}
+
+En esta práctica, los estudiantes trabajarán con un esquema de base de datos complejo previamente implementado. El objetivo es ejecutar y analizar una serie de consultas SQL que emplean técnicas avanzadas. Estas consultas abordarán una variedad de temas, desde la selección y filtrado de datos hasta la agregación y uso de funciones avanzadas.
+
+\section*{Objetivos}
+
+\begin{enumerate}
+\item Implementar un esquema \ref{fig:diagramaP3_1} de base de datos complejo con múltiples tablas y relaciones en Oracle LiveSQL.
+\item Realizar consultas SQL avanzadas para extraer y analizar datos del esquema complejo.
+\item Aplicar una variedad de técnicas SQL, incluyendo agregaciones, condiciones de filtrado, y manipulación de datos.
+\item Comprender y utilizar correctamente funciones y operadores SQL avanzados.
+\end{enumerate}
+
+\section*{Especificaciones de Desarrollo}
+
+\subsection*{Paso 1: Implementación del Esquema}
+
+\begin{enumerate}
+    \item Crea las siguientes tablas en Oracle LiveSQL según el diagrama relacional proporcionado:
+    \begin{itemize}
+        \item \textbf{Departments}
+        \item \textbf{Employees}
+        \item \textbf{Projects}
+        \item \textbf{Project\_Assignments}
+        \item \textbf{Salaries}
+    \end{itemize}
+    \item Asegúrate de incluir las restricciones de integridad correspondientes para cada tabla, como \texttt{NOT NULL}, \texttt{AUTO\_INCREMENT}, \texttt{UNIQUE}, y \texttt{CHECK}.
+\end{enumerate}
+%% Diagrama
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\linewidth]{Images/Diagrama_P3_0.png}
+    \caption{Diagrama Relacional}
+    \label{fig:diagramaP3_1}
+\end{figure}
+
+
+\subsection*{Paso 2: Inserción de Datos}
+
+\begin{enumerate}
+    \item Inserta datos de ejemplo en cada tabla. Asegúrate de que los datos respeten las restricciones de integridad establecidas.
+    \item Los datos deben ser suficientes para poder realizar las consultas básicas requeridas posteriormente.
+\end{enumerate}
+
+\subsection*{Paso 3: Consultas Avanzadas}
+\begin{tcolorbox}[colback=red!5!white, colframe=red!75!black, title= Restricción]
+\begin{verbatim}
+    No deben usar Joins
+\end{verbatim}
+\end{tcolorbox}
+
+\begin{enumerate}
+
+    \item Selecciona los nombres y apellidos de todos los empleados que trabajan en un departamento con un presupuesto mayor a 1,000,000.
+    \\
+    \textbf{Hint:} Usa una subconsulta para filtrar los departamentos con un presupuesto superior a un millón.
+
+    \item Obtén los nombres y apellidos de los empleados que tienen un salario mayor al promedio de todos los salarios. Ordena los resultados por el salario en orden descendente.
+    \\
+    \textbf{Hint:} Utiliza la función de agregación que calcula el promedio para comparar los salarios individuales con el promedio.
+
+    \item Encuentra todos los proyectos que tienen un presupuesto entre 500,000 y 1,000,000. Muestra el nombre del proyecto y su presupuesto.
+    \\
+    \textbf{Hint:} Usa la cláusula para filtrar los presupuestos dentro del rango especificado.
+
+    \item Inserta un nuevo empleado en la tabla \texttt{Employees} con un salario y asigna este empleado a un departamento específico.
+    \\
+    \textbf{Hint:} Asegúrate de asignar correctamente el ID del departamento en la nueva fila que insertes.
+
+    \item Actualiza el salario de todos los empleados cuyo título de trabajo es 'Manager' incrementándolo en un 10\%.
+    \\
+    \textbf{Hint:} Usa una operación matemática para incrementar los salarios en función de su valor actual.
+
+    \item Elimina todos los registros de empleados que no tienen ningún proyecto asignado.
+    \\
+    \textbf{Hint:} Utiliza una subconsulta o un operador de comparación para identificar empleados sin asignaciones de proyectos.
+
+    \item Cuenta cuántos empleados trabajan en cada departamento y muestra el nombre del departamento junto con el número de empleados. Filtra los resultados para mostrar solo los departamentos con más de 10 empleados.
+    \\
+    \textbf{Hint:} Usa la función de agregación que cuenta filas para agrupar los empleados por departamento.
+
+    \item Encuentra el salario mínimo y máximo que reciben los empleados en el departamento de 'IT'. Muestra el título del trabajo, el salario mínimo y el salario máximo.
+    \\
+    \textbf{Hint:} Usa funciones de agregación para calcular los valores mínimo y máximo.
+
+    \item Encuentra los nombres de los proyectos que comenzaron en el año 2023 y que están en el departamento con el presupuesto más alto.
+    \\
+    \textbf{Hint:} Usa una subconsulta para obtener el presupuesto más alto y filtra los proyectos por la fecha de inicio.
+
+    \item Selecciona los nombres y apellidos de los empleados que tienen un correo electrónico que contiene el dominio 'example.com'. Asegúrate de que el correo electrónico sea único.
+    \\
+    \textbf{Hint:} Filtra los resultados usando un patrón que coincida con el dominio 'example.com' en la dirección de correo electrónico.
+
+    \item Muestra los nombres de los empleados que están trabajando en más de un proyecto. Ordena los resultados alfabéticamente.
+    \\
+    \textbf{Hint:} Agrupa los resultados por empleado y filtra aquellos que tienen más de una asignación de proyecto.
+
+    \item Selecciona el nombre del proyecto y el total de horas asignadas a cada proyecto. Filtra los resultados para mostrar solo los proyectos con más de 1000 horas asignadas.
+    \\
+    \textbf{Hint:} Usa una función de agregación para sumar las horas asignadas y filtra los proyectos que cumplan con el criterio.
+
+\end{enumerate}
+
+\section*{Justificación}
+
+En esta sección, deben explicar las relaciones entre las diferentes tablas del esquema y la cardinalidad de cada relación. 
+Deben describir cómo estas relaciones y la cardinalidad asociada impactan en el diseño del esquema y la integridad de los datos. Además, deben explicar cómo las restricciones de integridad, como las claves foráneas y las verificaciones, garantizan la consistencia y coherencia de los datos en todo el sistema.
+\begin{itemize}
+    \item \textbf{Departments \textit{y} Employees:} 
+    \item \textbf{Departments \textit{y} Projects:} 
+    \item \textbf{Employees \textit{y} Project\_Assignments:} 
+    \item \textbf{Projects \textit{y} Project\_Assignments:} 
+    \item \textbf{Employees \textit{y} Salaries:} 
+\end{itemize}
+\section*{Entregables}
+
+\begin{itemize}
+    \item Un archivo \texttt{.sql} que contenga la implementación completa del esquema de base de datos, incluyendo la creación de tablas y la inserción de datos.
+    \item Capturas de pantalla que evidencien:
+    \begin{itemize}
+        \item La creación de cada tabla con sus restricciones.
+        \item Las consultas realizadas y los resultados obtenidos.
+    \end{itemize}
+    \item Un archivo PDF con las capturas de pantalla y una breve explicación de cada paso realizado.
+\end{itemize}
+
+\section*{Rúbrica de Evaluación}
+
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{Criterio} & \textbf{Descripción} & \textbf{Ponderación} \\
+\hline
+\textbf{Creación de tablas} & Implementación correcta de las tablas con restricciones de integridad & 15\% \\
+\hline
+\textbf{Inserción de datos} & Inserción correcta y coherente de datos en las tablas & 10\% \\
+\hline
+\textbf{Consultas básicas} & Realización correcta de las consultas y resultados obtenidos & 50\% \\
+\hline
+\textbf{Justificación} & Claridad y corrección de argumentos & 15\% \\
+\hline
+\textbf{Presentación} & Claridad y organización de las capturas de pantalla y explicaciones & 10\% \\
+\hline
+\end{tabular}
+
+\input{desarrollo/Recursos}
+\end{document}
