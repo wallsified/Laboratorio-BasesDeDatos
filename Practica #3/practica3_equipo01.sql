@@ -92,12 +92,11 @@ INSERT INTO Employees (employee_id, fst_name, lst_name, email, phone_number, hir
 INSERT INTO Employees (employee_id, fst_name, lst_name, email, phone_number, hire_date, job_title, department_id, salary) 
     VALUES (7, 'George', 'Martinez', 'george.martinez@example.com', '789-012-3456', TO_DATE('2023-01-15', 'YYYY-MM-DD'), 'Financial Analyst', 2, 7300);
 INSERT INTO Employees (employee_id, fst_name, lst_name, email, phone_number, hire_date, job_title, department_id, salary) 
-VALUES (8, 'Hannah', 'Wilson', 'hannah.wilson@example.com', '890-123-4567', TO_DATE('2023-03-20', 'YYYY-MM-DD'), 'HR Coordinator', 1, 6700);
+    VALUES (8, 'Hannah', 'Wilson', 'hannah.wilson@example.com', '890-123-4567', TO_DATE('2023-03-20', 'YYYY-MM-DD'), 'HR Coordinator', 1, 6700);
 INSERT INTO Employees (employee_id, fst_name, lst_name, email, phone_number, hire_date, job_title, department_id, salary) 
     VALUES (9, 'Ian', 'Lee', 'ian.lee@example.com', '901-234-5678', TO_DATE('2023-05-25', 'YYYY-MM-DD'), 'Web Developer', 3, 7100);
 INSERT INTO Employees (employee_id, fst_name, lst_name, email, phone_number, hire_date, job_title, department_id, salary) 
     VALUES (10, 'Julia', 'Taylor', 'julia.taylor@example.com', '012-345-6789', TO_DATE('2023-07-30', 'YYYY-MM-DD'), 'Operations Manager', 9, 7800);
-INSERT INTO Employees (employee_id, fst_name, lst_name, email, phone_number, hire_date, job_title, department_id, salary) VALUES (11, 'Daniel', 'Paredes', 'danielparedes@ciencias.unam.mx', '556-937-7986', TO_DATE('2024-08-22', 'YYYY-MM-DD'), 'IT Manager', 3, 8500);
 
 -- Insertar proyectos
 INSERT INTO Projects (project_id, project_name, start_date, end_date, budget) VALUES (1, 'Website Redesign', TO_DATE('2024-01-01', 'YYYY-MM-DD'), TO_DATE('2024-06-30', 'YYYY-MM-DD'), 200000);
@@ -141,7 +140,7 @@ INSERT INTO Project_Assignments (assignment_id, employee_id, project_id, roole, 
 -- 1. Selecciona los nombres y apellidos de todos los empleados que trabajan en un departamento con un
 -- presupuesto mayor a 1,000,000
 -- Es normal que no haya resultados, pero es una query válida.
-SELECT fst_name, lst_name FROM Employees WHERE department_id IN (SELECT department_id FROM Departments WHERE budget > 1000000)
+SELECT fst_name, lst_name FROM Employees WHERE department_id IN (SELECT department_id FROM Departments WHERE budget > 1000000);
 
 -- 2. Obtén los nombres y apellidos de los empleados que tienen un salario mayor al promedio de todos
 -- los salarios. Ordena los resultados por el salario en orden descendente.
@@ -150,7 +149,7 @@ SELECT fst_name, lst_name FROM Employees WHERE department_id IN (SELECT departme
 --
 -- Se puede hacer una consulta secundaria para obtener el promedio, redondeado a un entero, y luego sobre
 -- ese valor aplicar el WHERE de la consulta.
-SELECT fst_name, lst_name FROM Employees WHERE salary > (SELECT ROUND(AVG(salary) from Employees))
+SELECT fst_name, lst_name FROM Employees WHERE salary > (SELECT ROUND(AVG(salary) from Employees));
 
 -- 3. Encuentra todos los proyectos que tienen un presupuesto entre 500,000 y 1,000,000. Muestra el
 -- nombre del proyecto y su presupuesto.
@@ -165,3 +164,51 @@ SELECT project_name, budget from Projects WHERE budget BETWEEN 500000 AND 100000
 -- Hint: Asegúrate de asignar correctamente el ID del departamento en la nueva fila que insertes.
 INSERT INTO Employees (employee_id, fst_name, lst_name, email, phone_number, hire_date, job_title, department_id, salary) 
     VALUES (11, 'Daniel', 'Paredes', 'danielparedes@ciencias.unam.mx', '556-937-7986', TO_DATE('2024-08-22', 'YYYY-MM-DD'), 'IT Manager', 3, 8500);
+
+-- 5. Actualiza el salario de todos los empleados cuyo tı́tulo de trabajo es ’Manager’ incrementándolo en un 10 %.
+-- Hint: Usa una operación matemática para incrementar los salarios en función de su valor actual.
+UPDATE Employees SET salary = (salary + (salary*.10)) WHERE job_title LIKE '%Manager';
+
+-- 6. Elimina todos los registros de empleados que no tienen ningún proyecto asignado.
+-- Hint: Utiliza una subconsulta o un operador de comparación para identificar empleados sin asig-
+-- naciones de proyectos.
+DELETE FROM Employees WHERE employee_id NOT IN (SELECT employee_id FROM Project_Assignments);
+
+
+-- 7. Cuenta cuántos empleados trabajan en cada departamento y muestra el nombre del departamento
+-- junto con el número de empleados. Filtra los resultados para mostrar solo los departamentos con
+-- más de 10 empleados.
+-- Hint: Usa la función de agregación que cuenta filas para agrupar los empleados por departamento.
+
+-- 8. Encuentra el salario mı́nimo y máximo que reciben los empleados en el departamento de ’IT’.
+-- Muestra el tı́tulo del trabajo, el salario mı́nimo y el salario máximo.
+-- Hint: Usa funciones de agregación para calcular los valores mı́nimo y máximo.
+--
+-- Preguntar sobre si esto sería un comando doble o de si esto se hace en uno solo.
+SELECT MIN(salary) AS ITSalaryMin FROM Employees WHERE department_ID = 3;
+SELECT MAX(salary) AS ITSalaryMax FROM Employees WHERE department_ID = 3;
+
+-- 9. Encuentra los nombres de los proyectos que comenzaron en el año 2023 y que están en el departa-
+-- mento con el presupuesto más alto.
+-- Hint: Usa una subconsulta para obtener el presupuesto más alto y filtra los proyectos por la fecha
+-- de inicio.
+
+-- Solo una idea que tuve. La probe y me marcaba ORA-00904: "DEPARTMENT_ID": invalid identifier. Quiza
+-- sirva para la version final. 
+-- SELECT project_name FROM Projects WHERE start_date BETWEEN TO_DATE('2023-01-01', 'YYYY-MM-DD') AND TO_DATE('2023-12-31', 'YYYY-MM-DD')
+ --   AND department_id = (SELECT department_id FROM Departments WHERE budget = (SELECT MAX(budget) FROM Departments));
+
+-- 10. Selecciona los nombres y apellidos de los empleados que tienen un correo electrónico que contiene
+-- el dominio ’example.com’. Asegúrate de que el correo electrónico sea único.
+-- Hint: Filtra los resultados usando un patrón que coincida con el dominio ’example.com’ en la
+-- dirección de correo electrónico.
+
+-- 11. Muestra los nombres de los empleados que están trabajando en más de un proyecto. Ordena los
+-- resultados alfabéticamente.
+-- Hint: Agrupa los resultados por empleado y filtra aquellos que tienen más de una asignación de
+-- proyecto.
+
+-- 12. Selecciona el nombre del proyecto y el total de horas asignadas a cada proyecto. Filtra los resultados
+-- para mostrar solo los proyectos con más de 1000 horas asignadas.
+-- Hint: Usa una función de agregación para sumar las horas asignadas y filtra los proyectos que
+-- cumplan con el criterio.
