@@ -149,7 +149,7 @@ SELECT fst_name, lst_name FROM Employees WHERE department_id IN (SELECT departme
 --
 -- Se puede hacer una consulta secundaria para obtener el promedio, redondeado a un entero, y luego sobre
 -- ese valor aplicar el WHERE de la consulta.
-SELECT fst_name, lst_name FROM Employees WHERE salary > (SELECT ROUND(AVG(salary) from Employees));
+SELECT fst_name, lst_name FROM Employees WHERE salary > (SELECT ROUND(AVG(salary)) from Employees);
 
 -- 3. Encuentra todos los proyectos que tienen un presupuesto entre 500,000 y 1,000,000. Muestra el
 -- nombre del proyecto y su presupuesto.
@@ -157,7 +157,7 @@ SELECT fst_name, lst_name FROM Employees WHERE salary > (SELECT ROUND(AVG(salary
 --
 -- Como el 1. , no regresa un valor ya que no existen proyectos con esas condiciones, pero la query
 -- sigue siendo valida. 
-SELECT project_name, budget from Projects WHERE budget BETWEEN 500000 AND 1000000 
+SELECT project_name, budget from Projects WHERE budget BETWEEN 500000 AND 1000000;
 
 -- 4. Inserta un nuevo empleado en la tabla Employees con un salario y asigna este empleado a un
 -- departamento especı́fico.
@@ -183,10 +183,8 @@ DELETE FROM Employees WHERE employee_id NOT IN (SELECT employee_id FROM Project_
 -- 8. Encuentra el salario mı́nimo y máximo que reciben los empleados en el departamento de ’IT’.
 -- Muestra el tı́tulo del trabajo, el salario mı́nimo y el salario máximo.
 -- Hint: Usa funciones de agregación para calcular los valores mı́nimo y máximo.
---
--- Preguntar sobre si esto sería un comando doble o de si esto se hace en uno solo.
-SELECT MIN(salary) AS ITSalaryMin FROM Employees WHERE department_ID = 3;
-SELECT MAX(salary) AS ITSalaryMax FROM Employees WHERE department_ID = 3;
+SELECT MIN(salary) AS ITSalaryMin, MAX(salary) AS ITSalaryMax FROM Employees WHERE department_ID = 3;
+
 
 -- 9. Encuentra los nombres de los proyectos que comenzaron en el año 2023 y que están en el departa-
 -- mento con el presupuesto más alto.
