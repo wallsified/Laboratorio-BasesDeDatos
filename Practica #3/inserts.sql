@@ -51,14 +51,14 @@ INSERT INTO Salaries (salary_id, employee_id, salary_amount, salary_date) VALUES
 
 
 -- Insertar asignaciones de proyecto
-INSERT INTO Project_Assignments (assignments, employee_id, project_id, roole, hours_allocated) VALUES (1, 1, 1, 'Lead Developer', 120);
-INSERT INTO Project_Assignments (assignments, employee_id, project_id, roole, hours_allocated) VALUES (2, 2, 1, 'Project Manager', 100);
-INSERT INTO Project_Assignments (assignments, employee_id, project_id, roole, hours_allocated) VALUES (3, 3, 2, 'UX Designer', 110);
-INSERT INTO Project_Assignments (assignments, employee_id, project_id, roole, hours_allocated) VALUES (4, 4, 3, 'Data Analyst', 130);
-INSERT INTO Project_Assignments (assignments, employee_id, project_id, roole, hours_allocated) VALUES (5, 5, 4, 'Marketing Specialist', 90);
-INSERT INTO Project_Assignments (assignments, employee_id, project_id, roole, hours_allocated) VALUES (6, 6, 5, 'Customer Support', 80);
-INSERT INTO Project_Assignments (assignments, employee_id, project_id, roole, hours_allocated) VALUES (7, 7, 6, 'Financial Analyst', 150);
-INSERT INTO Project_Assignments (assignments, employee_id, project_id, roole, hours_allocated) VALUES (8, 8, 7, 'HR Coordinator', 70);
-INSERT INTO Project_Assignments (assignments, employee_id, project_id, roole, hours_allocated) VALUES (9, 9, 8, 'Web Developer', 125);
-INSERT INTO Project_Assignments (assignments, employee_id, project_id, roole, hours_allocated) VALUES (10, 10, 9, 'Operations Manager', 140);
+INSERT INTO Project_Assignments (assignment_id, employee_id, project_id, roole, hours_allocated) VALUES (1, 1, 1, 'Lead Developer', 120);
+INSERT INTO Project_Assignments (assignment_id, employee_id, project_id, roole, hours_allocated) VALUES (2, 2, 1, 'Project Manager', 100);
+INSERT INTO Project_Assignments (assignment_id, employee_id, project_id, roole, hours_allocated) VALUES (3, 3, 2, 'UX Designer', 110);
+INSERT INTO Project_Assignments (assignment_id, employee_id, project_id, roole, hours_allocated) VALUES (4, 4, 3, 'Data Analyst', 130);
+INSERT INTO Project_Assignments (assignment_id, employee_id, project_id, roole, hours_allocated) VALUES (5, 5, 4, 'Marketing Specialist', 90);
+INSERT INTO Project_Assignments (assignment_id, employee_id, project_id, roole, hours_allocated) VALUES (6, 6, 5, 'Customer Support', 80);
+INSERT INTO Project_Assignments (assignment_id, employee_id, project_id, roole, hours_allocated) VALUES (7, 7, 6, 'Financial Analyst', 150);
+INSERT INTO Project_Assignments (assignment_id, employee_id, project_id, roole, hours_allocated) VALUES (8, 8, 7, 'HR Coordinator', 70);
+INSERT INTO Project_Assignments (assignment_id, employee_id, project_id, roole, hours_allocated) VALUES (9, 9, 8, 'Web Developer', 125);
+INSERT INTO Project_Assignments (assignment_id, employee_id, project_id, roole, hours_allocated) VALUES (10, 10, 9, 'Operations Manager', 140);
 
