@@ -1,4 +1,4 @@
--- Práctica #2: Creación de Tablas Complejas y
+-- Práctica #3: Creación de Tablas Complejas y
 -- Consultas Avanzadas
 -- Alumnos: 
 -- * Paredes Zamudio Luis Daniel
