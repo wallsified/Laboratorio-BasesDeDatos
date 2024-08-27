@@ -179,6 +179,13 @@ DELETE FROM Employees WHERE employee_id NOT IN (SELECT employee_id FROM Project_
 -- junto con el número de empleados. Filtra los resultados para mostrar solo los departamentos con
 -- más de 10 empleados.
 -- Hint: Usa la función de agregación que cuenta filas para agrupar los empleados por departamento.
+SELECT d.department_name, employee_count
+FROM Departments d,
+     (SELECT department_id, COUNT(*) as employee_count
+      FROM Employees
+      GROUP BY department_id
+      HAVING COUNT(*) > 10) e
+WHERE d.department_id = e.department_id;
 
 -- 8. Encuentra el salario mı́nimo y máximo que reciben los empleados en el departamento de ’IT’.
 -- Muestra el tı́tulo del trabajo, el salario mı́nimo y el salario máximo.
