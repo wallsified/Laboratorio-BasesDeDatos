@@ -185,17 +185,10 @@ DELETE FROM Employees WHERE employee_id NOT IN (SELECT employee_id FROM Project_
 -- Hint: Usa funciones de agregación para calcular los valores mı́nimo y máximo.
 SELECT MIN(salary) AS ITSalaryMin, MAX(salary) AS ITSalaryMax FROM Employees WHERE department_ID = 3;
 
-
--- 9. Encuentra los nombres de los proyectos que comenzaron en el año 2023 y que están en el departa-
--- mento con el presupuesto más alto.
+ -- 9. Encuentra los nombres de los proyectos que comenzaron en el año 2023 y que están en el departamento
+-- con el presupuesto más alto.
 -- Hint: Usa una subconsulta para obtener el presupuesto más alto y filtra los proyectos por la fecha
 -- de inicio.
-
--- Solo una idea que tuve. La probe y me marcaba ORA-00904: "DEPARTMENT_ID": invalid identifier. Quiza
--- sirva para la version final. 
--- SELECT project_name FROM Projects WHERE start_date BETWEEN TO_DATE('2023-01-01', 'YYYY-MM-DD') AND TO_DATE('2023-12-31', 'YYYY-MM-DD')
- --   AND department_id = (SELECT department_id FROM Departments WHERE budget = (SELECT MAX(budget) FROM Departments));
- -- 9. Encuentra los nombres de los proyectos que comenzaron en el año 2023 y que están en el departamento con el presupuesto más alto.
 SELECT DISTINCT p.project_name
 FROM Projects p
 WHERE p.project_id IN (
