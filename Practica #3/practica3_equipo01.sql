@@ -195,18 +195,48 @@ SELECT MIN(salary) AS ITSalaryMin, MAX(salary) AS ITSalaryMax FROM Employees WHE
 -- sirva para la version final. 
 -- SELECT project_name FROM Projects WHERE start_date BETWEEN TO_DATE('2023-01-01', 'YYYY-MM-DD') AND TO_DATE('2023-12-31', 'YYYY-MM-DD')
  --   AND department_id = (SELECT department_id FROM Departments WHERE budget = (SELECT MAX(budget) FROM Departments));
+ -- 9. Encuentra los nombres de los proyectos que comenzaron en el año 2023 y que están en el departamento con el presupuesto más alto.
+SELECT DISTINCT p.project_name
+FROM Projects p
+WHERE p.project_id IN (
+    SELECT pa.project_id
+    FROM Project_Assignments pa
+    WHERE pa.employee_id IN (
+        SELECT e.employee_id
+        FROM Employees e
+        WHERE e.department_id = (
+            SELECT department_id
+            FROM Departments
+            WHERE budget = (SELECT MAX(budget) FROM Departments)
+        )
+    )
+)
+AND EXTRACT(YEAR FROM p.start_date) = 2023;
 
 -- 10. Selecciona los nombres y apellidos de los empleados que tienen un correo electrónico que contiene
--- el dominio ’example.com’. Asegúrate de que el correo electrónico sea único.
--- Hint: Filtra los resultados usando un patrón que coincida con el dominio ’example.com’ en la
--- dirección de correo electrónico.
+-- el dominio 'example.com'. Asegúrate de que el correo electrónico sea único.
+SELECT DISTINCT fst_name, lst_name
+FROM Employees
+WHERE email LIKE '%@example.com';
 
 -- 11. Muestra los nombres de los empleados que están trabajando en más de un proyecto. Ordena los
 -- resultados alfabéticamente.
--- Hint: Agrupa los resultados por empleado y filtra aquellos que tienen más de una asignación de
--- proyecto.
+SELECT fst_name, lst_name
+FROM Employees
+WHERE employee_id IN (
+    SELECT employee_id
+    FROM Project_Assignments
+    GROUP BY employee_id
+    HAVING COUNT(*) > 1
+)
+ORDER BY fst_name, lst_name;
 
 -- 12. Selecciona el nombre del proyecto y el total de horas asignadas a cada proyecto. Filtra los resultados
 -- para mostrar solo los proyectos con más de 1000 horas asignadas.
--- Hint: Usa una función de agregación para sumar las horas asignadas y filtra los proyectos que
--- cumplan con el criterio.
+SELECT p.project_name, total_hours
+FROM Projects p,
+     (SELECT project_id, SUM(hours_allocated) as total_hours
+      FROM Project_Assignments
+      GROUP BY project_id
+      HAVING SUM(hours_allocated) > 1000) pa
+WHERE p.project_id = pa.project_id;
