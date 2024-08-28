@@ -200,7 +200,7 @@ WHERE d.department_id = e.department_id;
 --
 -- Se pueden "anidar" las funciones de agregación y luego darles un alias. De esta forma, se muestran
 -- ambos resultados simultaneamente y con sus alias correspondientes. 
-SELECT MIN(salary) AS ITSalaryMin, MAX(salary) AS ITSalaryMax FROM Employees WHERE department_ID = 3;
+SELECT job_title, MIN(salary) AS ITSalaryMin, MAX(salary) AS ITSalaryMax FROM Employees WHERE department_ID = 3 GROUP BY job_title;
 
  -- 9. Encuentra los nombres de los proyectos que comenzaron en el año 2023 y que están en el departamento
 -- con el presupuesto más alto.
