@@ -207,19 +207,13 @@ SELECT job_title, MIN(salary) AS ITSalaryMin, MAX(salary) AS ITSalaryMax FROM Em
 -- Hint: Usa una subconsulta para obtener el presupuesto más alto y filtra los proyectos por la fecha
 -- de inicio.
 -- 
--- Ocupamos la misma idea del 7 para los alias. Aqui se vuelve más práctico empezar a hacerlo por que
--- se necesitan hacer varias subconsultas. Luego ocupamos la función 'EXTRACT' para poder sacar el año
--- de la fecha de inicio de la tabla Projects y asi crear el filtro completo. En este caso bastaría con 
--- buscar con una igualdad el año 2023 de forma directa, pero es también otra forma de conseguir ese valor
--- usando comandos nuevos. 
-SELECT DISTINCT p.project_name FROM Projects p WHERE p.project_id IN (
-    SELECT pa.project_id FROM Project_Assignments pa WHERE pa.employee_id IN (
-        SELECT e.employee_id FROM Employees e WHERE e.department_id = (
+-- Ocupamos la misma idea del 7 para los alias. Lo que se hace es seleccionar el año y el nombre de proyecto
+-- de los 'project_id' que aparezcan en la subconsulta de buscar el departamento con el presupuesto mas
+-- lato. Luego, ocupamos el (creemos es un operador) 'date' para transformar la fecha '2023-01-01' a un tipo
+-- reconocido por la BD de Oracle y asi hacer el filtro del año a buscar. 
+SELECT DISTINCT p.project_name, p.start_date FROM Projects p WHERE p.project_id IN (
             SELECT department_id FROM Departments WHERE budget = (SELECT MAX(budget) FROM Departments)
-        )
-    )
-)
-AND EXTRACT(YEAR FROM p.start_date) = 2023;
+) AND p.start_date >= date '2023-01-01';
 
 -- 10. Selecciona los nombres y apellidos de los empleados que tienen un correo electrónico que contiene
 -- el dominio 'example.com'. Asegúrate de que el correo electrónico sea único.
