@@ -1,6 +1,6 @@
 --La base de datos debe incluir una tabla que almacene la informaci ́on de los Empleados, inclu- yendo atributos como el employee id, first name, last name, email, hire date, y salary. Cada empleado debe estar asignado a un Departamento.
 
-
+-- Un pequeño comentario
 CREATE TABLE Employees (
     employee_ID NUMBER PRIMARY KEY,
     first_name VARCHAR2(50) NOT NULL,
