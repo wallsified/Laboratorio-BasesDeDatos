@@ -13,6 +13,8 @@ CREATE TABLE Employees (
     FOREIGN KEY (department_ID) REFERENCES Departments(department_ID)
 );
 
+-- Otra cosa
+
 
 --Los Departamentos deben ser gestionados en una tabla separada, con atributos como department id, department name, y manager id. Cada departamento tiene un gerente, que es un empleado, y puede tener mu ́ltiples empleados asignados.
 
