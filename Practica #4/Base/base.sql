@@ -73,7 +73,7 @@ CREATE TABLE PROJECT_ASIGNMENT (
     EMPLOYEE_ID NUMBER,
     ROLL VARCHAR2(20),
     HOURS_WORKED NUMBER,
-    FOREIGN KEY (PROJECT_ID) REFERENCES PROJECT(PROJECT_ID),
+    FOREIGN KEY (PROJECT_ID) REFERENCES PROJECTS(PROJECT_ID),
     FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(EMPLOYEE_ID)
 );
 
@@ -83,7 +83,7 @@ CREATE TABLE SUPPLIERS (
     SUPPLIER_NAME VARCHAR2(100) NOT NULL,
     CONTACT_INFO VARCHAR2(200),
     PROJECT_ID NUMBER,
-    FOREIGN KEY (PROJECT_ID) REFERENCES PROYECTOS(PROJECT_ID)
+    FOREIGN KEY (PROJECT_ID) REFERENCES PROJECTS(PROJECT_ID)
 );
 
 CREATE TABLE CUSTOMERS (
@@ -97,7 +97,7 @@ CREATE TABLE CUSTOMER_PROJECT (
     PROJECT_ID NUMBER,
     PRIMARY KEY (CUSTOMER_ID, PROJECT_ID),
     FOREIGN KEY (CUSTOMER_ID) REFERENCES CUSTOMERS(CUSTOMER_ID),
-    FOREIGN KEY (PROJECT_ID) REFERENCES PROYECTOS(PROJECT_ID)
+    FOREIGN KEY (PROJECT_ID) REFERENCES PROJECTS(PROJECT_ID)
 );
 
 -- * Sección #2: Consultas Avanzadas
@@ -124,10 +124,40 @@ ORDER BY
 -- * 2: Calcular el salario promedio, el salario mı́nimo y el salario máximo de los empleados
 -- * en cada departamento. Mostrar el nombre del departamento y los valores calculados, usando alias
 -- * para las columnas agregadas.
+SELECT 
+    E.SALARY,
+    D.DEPARTMENT_NAME
+FROM 
+    EMPLOYEES E
+    INNER JOIN DEPARTMENTS D ON D.DEPARTMENT_ID = E.DEPARTMENT_ID;
+    AVG(E.SALARY) AS AVG_SALARY,
+    MIN(E.SALARY) AS MIN_SALARY,
+    MAX(E.SALARY) AS MAX_SALARY,
+GROUP BY 
+    D.DEPARTMENT_NAME;
+ORDER BY 
+    D.DEPARTMENT_NAME;
+
+
 
 -- * 3. Listar todos los proyectos activos (aquellos cuyo end date es posterior a la fecha
 -- * actual) junto con el número total de empleados asignados a cada proyecto. Utilizar joins y una
 -- * subconsulta para filtrar los proyectos activos.
+
+-- Encontré que existe el GETDATE() para obtener la fecha actual del sistema, pero no recuerdo si sí lo vimos en clase.
+SELECT 
+    P.PROJECT_NAME, 
+    COUNT(PA.EMPLOYEE_ID) AS ASIGNED_EMPL,
+FROM  
+    PROJECT_ASIGNMENT PA
+    INNER JOIN PROJECTS P ON PA.PROJECT_ID = P.PROJECT_ID;
+WHERE
+    SYSDATE < P.END_DATE
+GROUP BY
+    P.PROJECT_NAME;
+ORDER BY
+    P.PROJECT_NAME;
+
 
 -- * 4: Obtener el nombre de los empleados que trabajan en más de un proyecto, junto con
 -- * la cantidad de proyectos en los que están involucrados. Los resultados deben estar ordenados por el
