@@ -42,10 +42,10 @@ GROUP BY
 ORDER BY 
     D.DEPARTMENT_NAME; */
 SELECT
-    D.DEPARTMENT_NAME AS "Nombre del Departamento",
-    AVG(E.SALARY)     AS "Salario Promedio",
-    MIN(E.SALARY)     AS "Salario Mínimo",
-    MAX(E.SALARY)     AS "Salario Máximo"
+    D.DEPARTMENT_NAME    AS "Nombre del Departamento",
+    ROUND(AVG(E.SALARY)) AS "Salario Promedio",
+    MIN(E.SALARY)        AS "Salario Mínimo",
+    MAX(E.SALARY)        AS "Salario Máximo"
 FROM
     EMPLOYEES   E
     JOIN DEPARTMENTS D
@@ -58,7 +58,6 @@ GROUP BY
 -- * subconsulta para filtrar los proyectos activos.
 
 -- Encontré que existe el GETDATE() para obtener la fecha actual del sistema, pero no recuerdo si sí lo vimos en clase.
--- ! La tabla resultante debe de dar 1 por cada proyecto por que solo hay un empleado por proyecto (al 02/Sept/24 00:06 Hrs).
 SELECT
     P.PROJECT_NAME,
     COUNT(PA.EMPLOYEE_ID) AS ASIGNED_EMPL
@@ -76,8 +75,7 @@ ORDER BY
 -- * 4: Obtener el nombre de los empleados que trabajan en más de un proyecto, junto con
 -- * la cantidad de proyectos en los que están involucrados. Los resultados deben estar ordenados por el
 -- * número de proyectos en orden descendente.
-
--- ? Probablemente haya que añadir más valores en general antes de probar/hacer lo siguiente.
+-- ? Something's missing...
 SELECT
     E.FIRST_NAME,
     E.LAST_NAME,
@@ -98,7 +96,7 @@ ORDER BY
 -- * 5: Mostrar el nombre del gerente (manager_id) y el nombre del departamento que ges-
 -- * tiona, junto con el número total de empleados en cada departamento. Considerar solo aquellos
 -- * departamentos que tienen más de 5 empleados.
-
+-- ? Something's missing...
 SELECT
     E.FIRST_NAME,
     D.DEPARTMENT_NAME,
@@ -115,14 +113,60 @@ HAVING
 
 -- * 6: Obtener una lista de los proyectos que tienen un presupuesto superior al promedio de
 -- * todos los proyectos en la empresa. Mostrar el project name, budget, y el start date.
+SELECT
+    P.PROJECT_NAME,
+    P.BUDGET,
+    P.START_DATE
+FROM
+    PROJECTS P
+WHERE
+    P.BUDGET > (
+        SELECT
+            AVG(BUDGET)
+        FROM
+            PROJECTS
+    )
+ORDER BY
+    P.BUDGET DESC;
 
 -- * 7: Concatenar el first name y last name de los empleados en un solo campo, junto
 -- * con su employee id y el nombre del departamento al que pertenecen. Los resultados deben estar
 -- * ordenados por el nombre completo del empleado.
+-- ? Aqui es el nombre completo y el ID en la misma linea?
+SELECT
+    E.EMPLOYEE_ID,
+    E.FIRST_NAME
+    || ' '
+    || E.LAST_NAME    AS FULL_NAME,
+    D.DEPARTMENT_NAME
+FROM
+    EMPLOYEES   E
+    JOIN DEPARTMENTS D
+    ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+ORDER BY
+    FULL_NAME;
 
 -- * 8: Listar los empleados que no tienen asignado ningún proyecto actualmente. Mostrar el
 -- * employee id, first name, last name, y el nombre del departamento. Usar una subconsulta para
 -- * identificar a los empleados sin proyectos.
+
+-- ! Regresa un único valor pues solo hay un empleado que no esta asignado a un proyecto.
+SELECT
+    E.EMPLOYEE_ID,
+    E.FIRST_NAME,
+    E.LAST_NAME,
+    D.DEPARTMENT_NAME
+FROM
+    EMPLOYEES         E
+    JOIN DEPARTMENTS D
+    ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+WHERE
+    E.EMPLOYEE_ID NOT IN (
+        SELECT
+            PA.EMPLOYEE_ID
+        FROM
+            PROJECT_ASIGNMENT PA
+    );
 
 -- * 9: Obtener el nombre y el contacto de los proveedores (suppliers) que están asociados
 -- * con proyectos en los que trabaja al menos un empleado del departamento de IT. Usar un join para
@@ -153,6 +197,46 @@ WHERE
 -- * total, junto con el nombre del cliente asociado y el número total de horas trabajadas. Usar joins y
 -- * funciones de agregación.
 
+-- ? Esta creo que para que funcione se deben hacer modificaciones a la tabla PROJECTS
+
+/* SELECT
+    P.PROJECT_NAME,
+    C.CUSTOMER_NAME,
+    SUM(PA.HOURS_WORKED) AS TOTAL_HOURS
+FROM
+    PROJECTS P
+    JOIN PROJECT_ASIGNMENT PA ON P.PROJECT_ID = PA.PROJECT_ID
+    JOIN CUSTOMERS C ON P.CUSTOMER_ID = C.CUSTOMER_ID
+GROUP BY
+    P.PROJECT_NAME,
+    C.CUSTOMER_NAME
+HAVING
+    SUM(PA.HOURS_WORKED) > 100
+ORDER BY
+    TOTAL_HOURS DESC; */
+
 -- * 12: Obtener una lista de todos los empleados cuyo salario es superior al salario promedio
 -- * de su departamento. Mostrar el employee id, first name, last name, salary, y el nombre del
 -- * departamento. Ordenar los resultados por el salario en orden descendente.
+
+SELECT
+    E.EMPLOYEE_ID,
+    E.FIRST_NAME,
+    E.LAST_NAME,
+    E.SALARY,
+    D.DEPARTMENT_NAME
+FROM
+    EMPLOYEES   E
+    JOIN DEPARTMENTS D
+    ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+WHERE
+    E.SALARY > (
+        SELECT
+            AVG(E2.SALARY)
+        FROM
+            EMPLOYEES E2
+        WHERE
+            E2.DEPARTMENT_ID = E.DEPARTMENT_ID
+    )
+ORDER BY
+    E.SALARY DESC;
