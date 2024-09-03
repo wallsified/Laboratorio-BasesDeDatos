@@ -28,19 +28,7 @@ ORDER BY
 -- * 2: Calcular el salario promedio, el salario mı́nimo y el salario máximo de los empleados
 -- * en cada departamento. Mostrar el nombre del departamento y los valores calculados, usando alias
 -- * para las columnas agregadas.
-/* SELECT 
-    E.SALARY,
-    D.DEPARTMENT_NAME
-FROM 
-    EMPLOYEES E
-    INNER JOIN DEPARTMENTS D ON D.DEPARTMENT_ID = E.DEPARTMENT_ID;
-    AVG(E.SALARY) AS AVG_SALARY,
-    MIN(E.SALARY) AS MIN_SALARY,
-    MAX(E.SALARY) AS MAX_SALARY,
-GROUP BY 
-    D.DEPARTMENT_NAME;
-ORDER BY 
-    D.DEPARTMENT_NAME; */
+
 SELECT
     D.DEPARTMENT_NAME    AS "Nombre del Departamento",
     ROUND(AVG(E.SALARY)) AS "Salario Promedio",
@@ -75,7 +63,7 @@ ORDER BY
 -- * 4: Obtener el nombre de los empleados que trabajan en más de un proyecto, junto con
 -- * la cantidad de proyectos en los que están involucrados. Los resultados deben estar ordenados por el
 -- * número de proyectos en orden descendente.
--- ? Something's missing...
+
 SELECT
     E.FIRST_NAME,
     E.LAST_NAME,
@@ -132,7 +120,7 @@ ORDER BY
 -- * 7: Concatenar el first name y last name de los empleados en un solo campo, junto
 -- * con su employee id y el nombre del departamento al que pertenecen. Los resultados deben estar
 -- * ordenados por el nombre completo del empleado.
--- ? Aqui es el nombre completo y el ID en la misma linea?
+
 SELECT
     E.EMPLOYEE_ID,
     E.FIRST_NAME
@@ -172,8 +160,6 @@ WHERE
 -- * con proyectos en los que trabaja al menos un empleado del departamento de IT. Usar un join para
 -- * combinar la información de proveedores, proyectos, y empleados.
 
--- ? Esta de nuevo da un 'data not found'. Pero no estoy aun seguro del por que.
-
 SELECT
     S.SUPPLIER_NAME,
     S.CONTACT_INFO
@@ -193,27 +179,41 @@ WHERE
 -- * 10: Listar los nombres de los clientes que están asociados con más de un proyecto. Mostrar
 -- * el customer name, el número de proyectos asociados y el contact info del cliente.
 
+SELECT
+    C.CUSTOMER_NAME,
+    COUNT(P.PROJECT_ID) AS NUM_PROYECTOS,
+    C.CONTACT_INFO
+FROM
+    CUSTOMERS C
+    JOIN PROJECTS P
+    ON C.CUSTOMER_ID = P.CUSTOMER_ID
+GROUP BY
+    C.CUSTOMER_NAME,
+    C.CONTACT_INFO
+HAVING
+    COUNT(P.PROJECT_ID) > 1;
+
 -- * 11: Mostrar los nombres de los proyectos que tienen más de 100 horas trabajadas en
 -- * total, junto con el nombre del cliente asociado y el número total de horas trabajadas. Usar joins y
 -- * funciones de agregación.
 
--- ? Esta creo que para que funcione se deben hacer modificaciones a la tabla PROJECTS
-
-/* SELECT
+SELECT
     P.PROJECT_NAME,
     C.CUSTOMER_NAME,
     SUM(PA.HOURS_WORKED) AS TOTAL_HOURS
 FROM
-    PROJECTS P
-    JOIN PROJECT_ASIGNMENT PA ON P.PROJECT_ID = PA.PROJECT_ID
-    JOIN CUSTOMERS C ON P.CUSTOMER_ID = C.CUSTOMER_ID
+    PROJECTS          P
+    JOIN PROJECT_ASIGNMENT PA
+    ON P.PROJECT_ID = PA.PROJECT_ID
+    JOIN CUSTOMERS C
+    ON P.CUSTOMER_ID = C.CUSTOMER_ID
 GROUP BY
     P.PROJECT_NAME,
     C.CUSTOMER_NAME
 HAVING
     SUM(PA.HOURS_WORKED) > 100
 ORDER BY
-    TOTAL_HOURS DESC; */
+    TOTAL_HOURS DESC;
 
 -- * 12: Obtener una lista de todos los empleados cuyo salario es superior al salario promedio
 -- * de su departamento. Mostrar el employee id, first name, last name, salary, y el nombre del
