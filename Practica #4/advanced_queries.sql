@@ -148,6 +148,19 @@ WHERE
 
 -- * 10: Listar los nombres de los clientes que están asociados con más de un proyecto. Mostrar
 -- * el customer name, el número de proyectos asociados y el contact info del cliente.
+SELECT 
+    C.CUSTOMER_NAME,
+    C.CONTACT_INFO,
+    COUNT(CP.PROJECT_ID)
+    --P.PROJECT_ID
+FROM
+    CUSTOMER_PROJECT CP
+    INNER JOIN CUSTOMER C
+    ON C.CUSTOMER_ID = CP.CUSTOMER_ID
+GROUP BY 
+    C.CUSTOMER_NAME
+HAVING
+    COUNT(CP.PROJECT_ID) > 1;
 
 -- * 11: Mostrar los nombres de los proyectos que tienen más de 100 horas trabajadas en
 -- * total, junto con el nombre del cliente asociado y el número total de horas trabajadas. Usar joins y
