@@ -15,7 +15,6 @@
 -- que se nos retorne el nombre de cada departamento y revisar que, dado un empleado, su DEPARTMENT_ID coincida
 -- con el DEPARTMENT_ID de algún departamento.
 SELECT
-    SELECT
         E.FIRST_NAME || ' ' || E.LAST_NAME AS FULL_NAME,
         E.SALARY,
         D.DEPARTMENT_NAME
@@ -34,16 +33,17 @@ SELECT
 -- Ocupamos `ROUND` para redondear el salario promedio de cada departamento (si nos da, por ejemplo,
 -- valores como 50000.345, y lo que necesitamos es quedarnos con, por ejemplo, 50000). El JOIN realizado
 -- tiene la misma lógica que del query anterior.
-D.DEPARTMENT_NAME AS "Nombre del Departamento",
-ROUND(AVG(E.SALARY)) AS "Salario Promedio",
-MIN(E.SALARY) AS "Salario Mínimo",
-MAX(E.SALARY) AS "Salario Máximo"
+SELECT
+    D.DEPARTMENT_NAME AS "Nombre del Departamento",
+    ROUND(AVG(E.SALARY)) AS "Salario Promedio",
+    MIN(E.SALARY) AS "Salario Mínimo",
+    MAX(E.SALARY) AS "Salario Máximo"
 FROM
-EMPLOYEES E
-JOIN DEPARTMENTS D
-ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+    EMPLOYEES E
+    JOIN DEPARTMENTS D
+    ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
 GROUP BY
-D.DEPARTMENT_NAME;
+    D.DEPARTMENT_NAME;
 
 -- * 3. Listar todos los proyectos activos (aquellos cuyo end date es posterior a la fecha
 -- * actual) junto con el número total de empleados asignados a cada proyecto. Utilizar joins y una
@@ -95,7 +95,8 @@ ORDER BY
 -- * 5: Mostrar el nombre del gerente (manager_id) y el nombre del departamento que ges-
 -- * tiona, junto con el número total de empleados en cada departamento. Considerar solo aquellos
 -- * departamentos que tienen más de 5 empleados.
--- ? Something's missing...
+-- En este esquema 
+-- ? Por qué esta consulta nos está dando a los managers?
 SELECT
     E.FIRST_NAME,
     D.DEPARTMENT_NAME,
