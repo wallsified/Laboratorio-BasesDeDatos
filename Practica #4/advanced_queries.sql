@@ -96,17 +96,18 @@ ORDER BY
 -- * tiona, junto con el número total de empleados en cada departamento. Considerar solo aquellos
 -- * departamentos que tienen más de 5 empleados.
 -- En este esquema 
--- ? Por qué esta consulta nos está dando a los managers?
+-- ? Por qué esta consulta nos está dando a los managers? 
 SELECT
     E.FIRST_NAME,
-    D.DEPARTMENT_NAME,
-    COUNT(E.EMPLOYEE_ID)
+    E.LAST_NAME,
+    D.DEPARTMENT_NAME
 FROM
     DEPARTMENTS D
     INNER JOIN EMPLOYEES E
     ON D.DEPARTMENT_ID = E.DEPARTMENT_ID
 GROUP BY
     E.FIRST_NAME,
+    
     D.DEPARTMENT_NAME
 HAVING
     COUNT(E.EMPLOYEE_ID) > 5;
