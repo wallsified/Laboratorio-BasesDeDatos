@@ -15,16 +15,18 @@
 -- que se nos retorne el nombre de cada departamento y revisar que, dado un empleado, su DEPARTMENT_ID coincida
 -- con el DEPARTMENT_ID de algún departamento.
 SELECT
-        E.FIRST_NAME || ' ' || E.LAST_NAME AS FULL_NAME,
-        E.SALARY,
-        D.DEPARTMENT_NAME
-    FROM
-        EMPLOYEES E
-        JOIN DEPARTMENTS D
-        ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
-    ORDER BY
-        D.DEPARTMENT_NAME ASC,
-        E.LAST_NAME ASC;
+    E.FIRST_NAME
+    || ' '
+    || E.LAST_NAME    AS FULL_NAME,
+    E.SALARY,
+    D.DEPARTMENT_NAME
+FROM
+    EMPLOYEES   E
+    JOIN DEPARTMENTS D
+    ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+ORDER BY
+    D.DEPARTMENT_NAME ASC,
+    E.LAST_NAME ASC;
 
 -- * 2: Calcular el salario promedio, el salario mı́nimo y el salario máximo de los empleados
 -- * en cada departamento. Mostrar el nombre del departamento y los valores calculados, usando alias
@@ -34,12 +36,12 @@ SELECT
 -- valores como 50000.345, y lo que necesitamos es quedarnos con, por ejemplo, 50000). El JOIN realizado
 -- tiene la misma lógica que del query anterior.
 SELECT
-    D.DEPARTMENT_NAME AS "Nombre del Departamento",
+    D.DEPARTMENT_NAME    AS "Nombre del Departamento",
     ROUND(AVG(E.SALARY)) AS "Salario Promedio",
-    MIN(E.SALARY) AS "Salario Mínimo",
-    MAX(E.SALARY) AS "Salario Máximo"
+    MIN(E.SALARY)        AS "Salario Mínimo",
+    MAX(E.SALARY)        AS "Salario Máximo"
 FROM
-    EMPLOYEES E
+    EMPLOYEES   E
     JOIN DEPARTMENTS D
     ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
 GROUP BY
@@ -95,22 +97,27 @@ ORDER BY
 -- * 5: Mostrar el nombre del gerente (manager_id) y el nombre del departamento que ges-
 -- * tiona, junto con el número total de empleados en cada departamento. Considerar solo aquellos
 -- * departamentos que tienen más de 5 empleados.
--- En este esquema 
--- ? Por qué esta consulta nos está dando a los managers? 
+
 SELECT
-    E.FIRST_NAME,
-    E.LAST_NAME,
-    D.DEPARTMENT_NAME
+    M.FST_NAME
+    || ' '
+    || M.LST_NAME        AS MANAGER_NAME,
+    D.DEPARTMENT_NAME,
+    COUNT(E.EMPLOYEE_ID) AS TOTAL_EMPLOYEES
 FROM
     DEPARTMENTS D
-    INNER JOIN EMPLOYEES E
+    JOIN MANAGERS M
+    ON D.DEPARTMENT_ID = M.DEPARTMENT_ID
+    JOIN EMPLOYEES E
     ON D.DEPARTMENT_ID = E.DEPARTMENT_ID
 GROUP BY
-    E.FIRST_NAME,
-    
+    M.FST_NAME,
+    M.LST_NAME,
     D.DEPARTMENT_NAME
 HAVING
-    COUNT(E.EMPLOYEE_ID) > 5;
+    COUNT(E.EMPLOYEE_ID) > 5
+ORDER BY
+    TOTAL_EMPLOYEES DESC;
 
 -- * 6: Obtener una lista de los proyectos que tienen un presupuesto superior al promedio de
 -- * todos los proyectos en la empresa. Mostrar el project_name, budget, y el start_date.
@@ -188,8 +195,9 @@ WHERE
 -- correspondientes. La idea de esto es revisar las igualdades SUPPLIER_ID = SUPPLIER_ID entre SUPPLIERS y PROJECTS
 -- , PROJECT_ID = PROJECT_ID entre PROJECTS y PROJECT_ASIGNMENT, EMPLOYEE_ID = EMPLOYEE_ID entre EMPLOYEES y PROJECT_ASIGNMENT
 -- y DEPARTMENT_ID = DEPARTMENT_ID entre DEPARTMENTS y EMPLOYEES. Luego, se usa un WHERE para filtrar los resultados por el departamento de IT.
+-- Ocupamos DISTINCT para no tener valores repetidos en la tabla resultante.
 SELECT
-    S.SUPPLIER_NAME,
+    DISTINCT S.SUPPLIER_NAME,
     S.CONTACT_INFO
 FROM
     SUPPLIERS         S
