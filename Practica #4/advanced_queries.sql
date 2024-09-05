@@ -10,7 +10,10 @@
 -- * junto con el nombre del departamento al que pertenecen. Ordenar los resultados por el nombre del
 -- * departamento y luego por el apellido del empleado.
 
--- Resulta que con || ' ' || contatenamos resultados.
+-- Ocupamos `||` para concatenar strings en SQL. Esto nos permitirá usar un alias para tener en una sola
+-- columna el nombre completo del empleado. El JOIN se hace entre EMPLOYEES y DEPARTMENTS, pues necesitamos
+-- que se nos retorne el nombre de cada departamento y revisar que, dado un empleado, su DEPARTMENT_ID coincida
+-- con el DEPARTMENT_ID de algún departamento.
 SELECT
     E.FIRST_NAME
     || ' '
@@ -28,19 +31,10 @@ ORDER BY
 -- * 2: Calcular el salario promedio, el salario mı́nimo y el salario máximo de los empleados
 -- * en cada departamento. Mostrar el nombre del departamento y los valores calculados, usando alias
 -- * para las columnas agregadas.
-/* SELECT 
-    E.SALARY,
-    D.DEPARTMENT_NAME
-FROM 
-    EMPLOYEES E
-    INNER JOIN DEPARTMENTS D ON D.DEPARTMENT_ID = E.DEPARTMENT_ID;
-    AVG(E.SALARY) AS AVG_SALARY,
-    MIN(E.SALARY) AS MIN_SALARY,
-    MAX(E.SALARY) AS MAX_SALARY,
-GROUP BY 
-    D.DEPARTMENT_NAME;
-ORDER BY 
-    D.DEPARTMENT_NAME; */
+
+-- Ocupamos `ROUND` para redondear el salario promedio de cada departamento (si nos da, por ejemplo,
+-- valores como 50000.345, y lo que necesitamos es quedarnos con, por ejemplo, 50000). El JOIN realizado
+-- tiene la misma lógica que del query anterior.
 SELECT
     D.DEPARTMENT_NAME    AS "Nombre del Departamento",
     ROUND(AVG(E.SALARY)) AS "Salario Promedio",
@@ -57,7 +51,10 @@ GROUP BY
 -- * actual) junto con el número total de empleados asignados a cada proyecto. Utilizar joins y una
 -- * subconsulta para filtrar los proyectos activos.
 
--- Encontré que existe el GETDATE() para obtener la fecha actual del sistema, pero no recuerdo si sí lo vimos en clase.
+-- Ocuparemos GETDATE() para obtener la fecha actual del sistema y asi hacer la comparación con el
+-- end_date de cada proyecto. El JOIN se hará entre PROJECTS y PROJECT_ASIGNMENT para revisar que
+-- dada una asignación de proyecto el PROJECT_ID coincida en ambas tablas.
+-- Luego, se agrupa/ordena dado el nombre del proyecto.
 SELECT
     P.PROJECT_NAME,
     COUNT(PA.EMPLOYEE_ID) AS ASIGNED_EMPL
@@ -75,7 +72,11 @@ ORDER BY
 -- * 4: Obtener el nombre de los empleados que trabajan en más de un proyecto, junto con
 -- * la cantidad de proyectos en los que están involucrados. Los resultados deben estar ordenados por el
 -- * número de proyectos en orden descendente.
--- ? Something's missing...
+
+-- Ocuparemos COUNT para saber cuantos projectos hay total dada la columna PROJECT_ID en PROJECTS y tomaremos
+-- los valores del nombre en la tabla EMPLOYEES. El JOIN se hace entre las tablas mencionadas para revisar
+-- que dado un empleado, su EMPLOYEE_ID coincida en ambas tablas. Se agrupa por EMPLOYEE_ID, FIRST_NAME y LAST_NAME
+-- y se usa HAVING para quedarnos con los empleados que trabajan en más de un proyecto.
 SELECT
     E.FIRST_NAME,
     E.LAST_NAME,
@@ -96,23 +97,34 @@ ORDER BY
 -- * 5: Mostrar el nombre del gerente (manager_id) y el nombre del departamento que ges-
 -- * tiona, junto con el número total de empleados en cada departamento. Considerar solo aquellos
 -- * departamentos que tienen más de 5 empleados.
--- ? Something's missing...
+
 SELECT
-    E.FIRST_NAME,
+    M.FST_NAME
+    || ' '
+    || M.LST_NAME        AS MANAGER_NAME,
     D.DEPARTMENT_NAME,
-    COUNT(E.EMPLOYEE_ID)
+    COUNT(E.EMPLOYEE_ID) AS TOTAL_EMPLOYEES
 FROM
     DEPARTMENTS D
-    INNER JOIN EMPLOYEES E
+    JOIN MANAGERS M
+    ON D.DEPARTMENT_ID = M.DEPARTMENT_ID
+    JOIN EMPLOYEES E
     ON D.DEPARTMENT_ID = E.DEPARTMENT_ID
 GROUP BY
-    E.FIRST_NAME,
+    M.FST_NAME,
+    M.LST_NAME,
     D.DEPARTMENT_NAME
 HAVING
-    COUNT(E.EMPLOYEE_ID) > 5;
+    COUNT(E.EMPLOYEE_ID) > 5
+ORDER BY
+    TOTAL_EMPLOYEES DESC;
 
 -- * 6: Obtener una lista de los proyectos que tienen un presupuesto superior al promedio de
--- * todos los proyectos en la empresa. Mostrar el project name, budget, y el start date.
+-- * todos los proyectos en la empresa. Mostrar el project_name, budget, y el start_date.
+
+-- En este caso, se usa una subconsulta para obtener el promedio de los presupuestos de todos los proyectos,
+-- y luego se usa este valor para filtrar los proyectos que tienen un presupuesto superior a dicho valor.
+-- Finalmente, se ordenan los resultados por el presupuesto en orden descendente.
 SELECT
     P.PROJECT_NAME,
     P.BUDGET,
@@ -132,7 +144,10 @@ ORDER BY
 -- * 7: Concatenar el first name y last name de los empleados en un solo campo, junto
 -- * con su employee id y el nombre del departamento al que pertenecen. Los resultados deben estar
 -- * ordenados por el nombre completo del empleado.
--- ? Aqui es el nombre completo y el ID en la misma linea?
+
+-- Como en el ejercicio 1, se usa || para concatenar los nombres y apellidos de los empleados. El JOIN que
+-- se realiza también el mismo, con la diferencia de que ahora se usa ORDER BY para ordenar los resultados
+-- por el nombre completo del empleado.
 SELECT
     E.EMPLOYEE_ID,
     E.FIRST_NAME
@@ -150,7 +165,11 @@ ORDER BY
 -- * employee id, first name, last name, y el nombre del departamento. Usar una subconsulta para
 -- * identificar a los empleados sin proyectos.
 
--- ! Regresa un único valor pues solo hay un empleado que no esta asignado a un proyecto.
+-- A pesar de hacer el mismo JOIN que en el ejercicio 7, el resultado es diferente pues se buscan
+-- los empleados que no estan asignados a ningun proyecto aplicando un WHERE con NOT IN, haciendo
+-- una subconsulta con el SELECT de los EMPLOYEE_ID de PROJECT_ASIGNMENT.
+-- ! Regresa un único valor pues solo hay un empleado que no esta asignado a un proyecto con la
+-- ! información de prueba ingresada en 'random_inserts.sql'.
 SELECT
     E.EMPLOYEE_ID,
     E.FIRST_NAME,
@@ -172,10 +191,13 @@ WHERE
 -- * con proyectos en los que trabaja al menos un empleado del departamento de IT. Usar un join para
 -- * combinar la información de proveedores, proyectos, y empleados.
 
--- ? Esta de nuevo da un 'data not found'. Pero no estoy aun seguro del por que.
-
+-- Se usa un INNER JOIN para combinar la información de proveedores, proyectos, y empleados en las tablas
+-- correspondientes. La idea de esto es revisar las igualdades SUPPLIER_ID = SUPPLIER_ID entre SUPPLIERS y PROJECTS
+-- , PROJECT_ID = PROJECT_ID entre PROJECTS y PROJECT_ASIGNMENT, EMPLOYEE_ID = EMPLOYEE_ID entre EMPLOYEES y PROJECT_ASIGNMENT
+-- y DEPARTMENT_ID = DEPARTMENT_ID entre DEPARTMENTS y EMPLOYEES. Luego, se usa un WHERE para filtrar los resultados por el departamento de IT.
+-- Ocupamos DISTINCT para no tener valores repetidos en la tabla resultante.
 SELECT
-    S.SUPPLIER_NAME,
+    DISTINCT S.SUPPLIER_NAME,
     S.CONTACT_INFO
 FROM
     SUPPLIERS         S
@@ -193,32 +215,61 @@ WHERE
 -- * 10: Listar los nombres de los clientes que están asociados con más de un proyecto. Mostrar
 -- * el customer name, el número de proyectos asociados y el contact info del cliente.
 
+-- Se usa un INNER JOIN para combinar la información de clientes, proyectos y project_asignments en las tablas
+-- correspondientes. La idea de esto es revisar las igualdades CUSTOMER_ID = CUSTOMER_ID entre CUSTOMERS y PROJECTS
+-- , PROJECT_ID = PROJECT_ID entre PROJECTS y PROJECT_ASIGNMENT. Luego, se usa un GROUP BY para agrupar los resultados
+-- por el nombre del cliente y se usa HAVING para quedarse con los clientes que tienen más de un proyecto.
+SELECT
+    C.CUSTOMER_NAME,
+    COUNT(P.PROJECT_ID) AS NUM_PROYECTOS,
+    C.CONTACT_INFO
+FROM
+    CUSTOMERS C
+    JOIN PROJECTS P
+    ON C.CUSTOMER_ID = P.CUSTOMER_ID
+GROUP BY
+    C.CUSTOMER_NAME,
+    C.CONTACT_INFO
+HAVING
+    COUNT(P.PROJECT_ID) > 1;
+
 -- * 11: Mostrar los nombres de los proyectos que tienen más de 100 horas trabajadas en
 -- * total, junto con el nombre del cliente asociado y el número total de horas trabajadas. Usar joins y
 -- * funciones de agregación.
 
--- ? Esta creo que para que funcione se deben hacer modificaciones a la tabla PROJECTS
-
-/* SELECT
+-- Se usa un INNER JOIN para combinar la información de proyectos, project_asignments y customers en las tablas
+-- correspondientes. La idea es revisar las igualdades PROJECT_ID = PROJECT_ID entre PROJECTS y PROJECT_ASIGNMENT
+-- y CUSTOMER_ID = CUSTOMER_ID entre PROJECTS y CUSTOMERS. Luego, se usa un GROUP BY para agrupar los resultados
+-- por el nombre del proyecto y el nombre del cliente. Se usa HAVING para quedarse con los proyectos que tienen
+-- más de 100 horas trabajadas. Finalmente, se ordenan los resultados por el número total de horas trabajadas en
+-- orden descendente.
+SELECT
     P.PROJECT_NAME,
     C.CUSTOMER_NAME,
     SUM(PA.HOURS_WORKED) AS TOTAL_HOURS
 FROM
-    PROJECTS P
-    JOIN PROJECT_ASIGNMENT PA ON P.PROJECT_ID = PA.PROJECT_ID
-    JOIN CUSTOMERS C ON P.CUSTOMER_ID = C.CUSTOMER_ID
+    PROJECTS          P
+    JOIN PROJECT_ASIGNMENT PA
+    ON P.PROJECT_ID = PA.PROJECT_ID
+    JOIN CUSTOMERS C
+    ON P.CUSTOMER_ID = C.CUSTOMER_ID
 GROUP BY
     P.PROJECT_NAME,
     C.CUSTOMER_NAME
 HAVING
     SUM(PA.HOURS_WORKED) > 100
 ORDER BY
-    TOTAL_HOURS DESC; */
+    TOTAL_HOURS DESC;
 
 -- * 12: Obtener una lista de todos los empleados cuyo salario es superior al salario promedio
 -- * de su departamento. Mostrar el employee id, first name, last name, salary, y el nombre del
 -- * departamento. Ordenar los resultados por el salario en orden descendente.
 
+-- Se usa una subconsulta para obtener el salario promedio de cada departamento y luego se usa
+-- un INNER JOIN para combinar la información de empleados y departamentos en las tablas correspondientes.
+-- La idea de esto es revisar las igualdades DEPARTMENT_ID = DEPARTMENT_ID entre DEPARTMENTS y EMPLOYEES.
+-- Luego, se usa un WHERE para filtrar los resultados por los empleados cuyo salario es superior al
+-- promedio de su departamento. Finalmente, se ordenan los resultados por el salario en orden descendente.
 SELECT
     E.EMPLOYEE_ID,
     E.FIRST_NAME,
