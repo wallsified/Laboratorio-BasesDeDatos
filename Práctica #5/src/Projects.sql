@@ -1,0 +1,10 @@
+insert into Projects (project_id, project_name, start_date, end_date, budget, supplier_id) values (1, 'Honorable', '2022-08-19', '2009-12-20', 691198.83, 4);
+insert into Projects (project_id, project_name, start_date, end_date, budget, supplier_id) values (2, 'Honorable', '2022-03-06', '2010-05-21', 999738.23, 2);
+insert into Projects (project_id, project_name, start_date, end_date, budget, supplier_id) values (3, 'Rev', '2019-01-10', '2005-11-17', 211748.65, 3);
+insert into Projects (project_id, project_name, start_date, end_date, budget, supplier_id) values (4, 'Ms', '2011-11-23', '2000-06-17', 803832.5, 1);
+insert into Projects (project_id, project_name, start_date, end_date, budget, supplier_id) values (5, 'Mrs', '2005-02-15', '2010-01-20', 602988.07, 4);
+insert into Projects (project_id, project_name, start_date, end_date, budget, supplier_id) values (6, 'Mr', '2006-10-30', '2013-04-09', 423361.33, 9);
+insert into Projects (project_id, project_name, start_date, end_date, budget, supplier_id) values (7, 'Rev', '2010-03-25', '2016-08-09', 529557.3, 2);
+insert into Projects (project_id, project_name, start_date, end_date, budget, supplier_id) values (8, 'Mrs', '2021-09-22', '2021-06-25', 35277.65, 10);
+insert into Projects (project_id, project_name, start_date, end_date, budget, supplier_id) values (9, 'Dr', '2017-09-01', '2022-12-18', 686809.25, 7);
+insert into Projects (project_id, project_name, start_date, end_date, budget, supplier_id) values (10, 'Dr', '2021-08-11', '2019-06-24', 798264.68, 7);

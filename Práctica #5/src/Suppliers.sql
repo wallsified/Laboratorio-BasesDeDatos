@@ -1,0 +1,10 @@
+insert into Suppliers (supplier_id, supplier_name, contact_info) values (1, 'Kate Skamal', '2 Atwood Pass');
+insert into Suppliers (supplier_id, supplier_name, contact_info) values (2, 'Dugald Matteau', '55 Meadow Vale Center');
+insert into Suppliers (supplier_id, supplier_name, contact_info) values (3, 'Cinderella Gutteridge', '3325 Holmberg Lane');
+insert into Suppliers (supplier_id, supplier_name, contact_info) values (4, 'Deonne Beran', '668 Kensington Parkway');
+insert into Suppliers (supplier_id, supplier_name, contact_info) values (5, 'Inglebert Moens', '9 Doe Crossing Drive');
+insert into Suppliers (supplier_id, supplier_name, contact_info) values (6, 'Giulietta MacGuigan', '0 Union Lane');
+insert into Suppliers (supplier_id, supplier_name, contact_info) values (7, 'Perice Trolley', '8 Maryland Trail');
+insert into Suppliers (supplier_id, supplier_name, contact_info) values (8, 'Lydon Roelofsen', '8 Dapin Circle');
+insert into Suppliers (supplier_id, supplier_name, contact_info) values (9, 'Fielding Bruckenthal', '59 Delladonna Alley');
+insert into Suppliers (supplier_id, supplier_name, contact_info) values (10, 'Floris Daintier', '0 American Ash Court');
