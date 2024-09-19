@@ -239,3 +239,26 @@ DELIMITER ;
 /* 3. Trigger 3: BeforeUpdateProjectBudget
 Verifica, antes de actualizar el presupuesto de un proyecto, si los pagos exceden el presupuesto
 original utilizando la función GetProjectBudgetRemaining. */
+DELIMITER //
+
+CREATE TRIGGER BeforeUpdateProjectBudget
+BEFORE UPDATE ON Projects
+FOR EACH ROW
+BEGIN
+    DECLARE budget_remaining DECIMAL(10,2);
+
+    -- Calcular el presupuesto restante usando el nuevo presupuesto (NEW.budget)
+    SET budget_remaining = NEW.budget - (
+        SELECT IFNULL(SUM(amount), 0)
+        FROM Payments
+        WHERE project_id = NEW.project_id
+    );
+
+    -- Si los pagos exceden el nuevo presupuesto, lanzar un error
+    IF budget_remaining < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Los pagos exceden el nuevo presupuesto del proyecto.';
+    END IF;
+END //
+
+DELIMITER ;
