@@ -145,9 +145,22 @@ CREATE FUNCTION GetProjectBudgetRemaining(in_project_id INT)
 RETURNS DECIMAL(10, 2)
 DETERMINISTIC
 BEGIN
+    DECLARE total_budget DECIMAL(10, 2);
+    DECLARE total_payments DECIMAL(10, 2);
     DECLARE budget_remaining DECIMAL(10, 2);
 
-    -- WIP
+    -- Selecciona el budget de un proyecto específico
+    SELECT budget INTO total_budget
+    FROM Projects
+    WHERE project_id = in_project_id;
+
+    -- Obtener el total de pagos realizados a los proveedores del proyecto
+    SELECT SUM(amount) INTO total_payments
+    FROM Payments
+    WHERE project_id = in_project_id;
+
+    -- Calcular el presupuesto restante
+    SET budget_remaining = total_budget - IFNULL(total_payments, 0);
 
     RETURN budget_remaining;
 END //
@@ -226,3 +239,26 @@ DELIMITER ;
 /* 3. Trigger 3: BeforeUpdateProjectBudget
 Verifica, antes de actualizar el presupuesto de un proyecto, si los pagos exceden el presupuesto
 original utilizando la función GetProjectBudgetRemaining. */
+DELIMITER //
+
+CREATE TRIGGER BeforeUpdateProjectBudget
+BEFORE UPDATE ON Projects
+FOR EACH ROW
+BEGIN
+    DECLARE budget_remaining DECIMAL(10,2);
+
+    -- Calcular el presupuesto restante usando el nuevo presupuesto (NEW.budget)
+    SET budget_remaining = NEW.budget - (
+        SELECT IFNULL(SUM(amount), 0)
+        FROM Payments
+        WHERE project_id = NEW.project_id
+    );
+
+    -- Si los pagos exceden el nuevo presupuesto, lanzar un error
+    IF budget_remaining < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Los pagos exceden el nuevo presupuesto del proyecto.';
+    END IF;
+END //
+
+DELIMITER ;
