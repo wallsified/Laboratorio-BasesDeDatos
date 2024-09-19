@@ -145,9 +145,20 @@ CREATE FUNCTION GetProjectBudgetRemaining(in_project_id INT)
 RETURNS DECIMAL(10, 2)
 DETERMINISTIC
 BEGIN
+    DECLARE total_budget DECIMAL(10, 2)
     DECLARE budget_remaining DECIMAL(10, 2);
 
-    -- WIP
+    -- Selecciona el budget de un project específico
+    SELECT budget INTO total_budget
+    FROM Projects
+    WHERE project_id = in_project_id;
+
+    -- Obtener el total de pagos realizados a los proveedores del proyecto
+    SELECT SUM(amount) INTO total_payments
+    FROM Payments
+    WHERE project_id = in_project_id;
+
+    SET budget_remaining = total_budget - IFNULL(total_payments, 0);
 
     RETURN budget_remaining;
 END //

@@ -26,6 +26,17 @@ CREATE TABLE Suppliers(
     supplier_id INT PRIMARY KEY,
     supplier_name VARCHAR(50),
     contact_info VARCHAR(50)
+
+);
+
+CREATE TABLE Payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY, -- Identificador único del pago
+    payment_date DATE NOT NULL, -- Fecha del pago
+    supplier_id INT NOT NULL, -- ID del pagador
+    project_id INT, -- ID del proyecto relacionado, si aplica
+    amount DECIMAL(10, 2) NOT NULL, -- Monto del pago
+    FOREIGN KEY (supplier_id) REFERENCES Suppliers(supplier_id), -- Relación con tabla de pagadores ( proveedores)
+    FOREIGN KEY (project_id) REFERENCES Projects(project_id), -- Relación con tabla de proyectos
 );
 
 CREATE TABLE Projects(
