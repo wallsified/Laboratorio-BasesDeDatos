@@ -141,32 +141,25 @@ Calcula el presupuesto restante de un proyecto teniendo en cuenta los pagos real
 
 DELIMITER //
 
-CREATE FUNCTION GetProjectBudgetRemaining(in_project_id INT)
+CREATE FUNCTION GetProjectBudgetRemaining(in_project_id INT, in_new_budget DECIMAL(10, 2))
 RETURNS DECIMAL(10, 2)
 DETERMINISTIC
 BEGIN
-    DECLARE total_budget DECIMAL(10, 2);
     DECLARE total_payments DECIMAL(10, 2);
     DECLARE budget_remaining DECIMAL(10, 2);
 
-    -- Selecciona el budget de un proyecto específico
-    SELECT budget INTO total_budget
-    FROM Projects
-    WHERE project_id = in_project_id;
-
-    -- Obtener el total de pagos realizados a los proveedores del proyecto
-    SELECT SUM(amount) INTO total_payments
+    -- Get the total payments for the project
+    SELECT IFNULL(SUM(amount), 0) INTO total_payments
     FROM Payments
     WHERE project_id = in_project_id;
 
-    -- Calcular el presupuesto restante
-    SET budget_remaining = total_budget - IFNULL(total_payments, 0);
+    -- Calculate the remaining budget using the new budget
+    SET budget_remaining = in_new_budget - total_payments;
 
     RETURN budget_remaining;
 END //
 
 DELIMITER ;
-    
 
 
 /* 3. Función 3: IsDepartmentManager
@@ -247,12 +240,8 @@ FOR EACH ROW
 BEGIN
     DECLARE budget_remaining DECIMAL(10,2);
 
-    -- Calcular el presupuesto restante usando el nuevo presupuesto (NEW.budget)
-    SET budget_remaining = NEW.budget - (
-        SELECT IFNULL(SUM(amount), 0)
-        FROM Payments
-        WHERE project_id = NEW.project_id
-    );
+ -- Calcular el presupuesto restante usando el nuevo presupuesto (NEW.budget)
+    SET budget_remaining = GetProjectBudgetRemaining(NEW.project_id, NEW.budget);
 
     -- Si los pagos exceden el nuevo presupuesto, lanzar un error
     IF budget_remaining < 0 THEN
