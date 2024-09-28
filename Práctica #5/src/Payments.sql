@@ -1,4 +1,4 @@
--- Insert payments for some of the existing projects
+
 INSERT INTO Payments (payment_id, payment_date, supplier_id, project_id, amount)
 VALUES
 (1, '2022-09-15', 4, 1, 200000.00),
