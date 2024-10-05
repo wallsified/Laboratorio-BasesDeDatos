@@ -283,8 +283,8 @@ BEGIN
 	-- pendientes. 
 	SELECT COUNT(od.productCode) INTO pendientes FROM orderdetails od
 	INNER JOIN orders o on o.orderNumber = od.orderNumber
-			WHERE o.status = "Shipped" AND od.productCode = OLD.productCode;
-	
+			WHERE o.status != "Shipped" AND od.productCode = OLD.productCode;
+	-- Tengo entendido que a´si sí se cumpliría que use los diferentes a enviados
 	-- Si el número de pendientes es mayor a 0, por ende no se puede borrar.
 	IF pendientes > 0 THEN
 		SIGNAL SQLSTATE '45000' 
@@ -292,25 +292,30 @@ BEGIN
 	END IF;
 END;
 
+
 /* 2. Trigger para actualizar la cantidad de productos en inventario después de una venta
 (ProductInventorySaleAU): Este trigger se debe activar después de insertar una nueva orden.
 El propósito es actualizar la cantidad disponible de los productos en el inventario tras la venta de
 esos productos. */
+-- Creo que para MySQL se debe usar SELECT antes
 
-CREATE TRIGGER ProductInventorySaleAU AFTER INSERT ON orderdetails FOR EACH ROW
 BEGIN 
-    -- Se revisa si la cantidad de productos en stock es suficiente para realizar la venta
-    IF (SELECT p.quantityInStock FROM products p)- NEW.quantityOrdered < 0 THEN
-        -- Si no lo es, se lanza un error y se cancela la inserción de la orden
+    DECLARE currStock INT;
+    -- Se revisa si la cantidad de productos en stock es suficiente para realizar la venta y se almacena en una variable currStock
+    SELECT quantityInStock INTO currStock
+    FROM products
+    WHERE productCode = NEW.productCode;
+-- Si no lo es, se lanza un error y se cancela la inserción de la orden
+    IF currStock - NEW.quantityOrdered < 0 THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'ERROR: No hay Stock suficiente para realizar la venta';
     ELSE
-        -- En caso de que haya suficiente stock, se actualiza la cantidad de productos en stock.
+	-- En caso de que haya suficiente stock, se actualiza la cantidad de productos en stock.
         UPDATE products 
-        SET quantityInStock = quantityInStock - NEW.quantityOrdered;
+        SET quantityInStock = quantityInStock - NEW.quantityOrdered
+        WHERE productCode = NEW.productCode;
     END IF;
 END;
-
 
 /* 3. Trigger para validar el lı́mite de crédito de un cliente (ValidateCustomerCreditLimit-
 BI): Este trigger se debe ejecutar antes de registrar una nueva orden. Si la suma del monto de la
@@ -388,7 +393,7 @@ DELIMITER ;
 View): Esta vista debe incluir el nombre del cliente, la cantidad de órdenes realizadas, el total de
 pagos recibidos, y el estado actual de cada una de sus órdenes.
 */
-
+-----
 CREATE VIEW CustomerOrderHistoryView AS 
 	SELECT c.customerName, COUNT(o.orderNumber) as 'Cantidad de Ordenes', 
 		SUM(p.amount) as 'Total de Pagos Recibidos', o.status as 'Estado de la Orden'
