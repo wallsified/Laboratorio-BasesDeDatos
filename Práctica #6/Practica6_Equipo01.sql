@@ -1,8 +1,86 @@
--- Práctica #5: Procedimientos Almacenados, Funciones y Triggers
+-- Práctica #6: Procedimientos Almacenados, Funciones y Triggers
 -- Alumnos:
 -- * Paredes Zamudio Luis Daniel
 -- * Rivera Morales David
 -- * Tapia Hernandez Carlos Alberto
+
+/* 
+
+ Funciones
+ */
+
+ /* 1. TotalOrders. Deberá devolver el total de órdenes realizadas por ese cliente en el año proporcionado. */
+
+ CREATE FUNCTION TotalOrders(p_customerNumber INT, p_year INT) 
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE total INT;
+    
+    SELECT COUNT(*) INTO total
+    FROM orders
+    WHERE customerNumber = p_customerNumber
+      AND YEAR(orderDate) = p_year;
+      
+    RETURN total;
+END;
+
+/* 2. TotalOrdersDiscount: Esta función recibirá como parámetros el orderNumber y calculará el des-
+cuento total basado en la diferencia entre el precio sugerido (MSRP) y el precio real de cada producto
+ordenado en esa orden. */
+
+CREATE FUNCTION TotalOrdersDiscount(p_orderNumber INT) 
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE totalDiscount DECIMAL(10,2) DEFAULT 0.00;
+    
+    SELECT SUM((p.MSRP - od.priceEach) * od.quantityOrdered) INTO totalDiscount
+    FROM orderdetails od
+    INNER JOIN products p ON od.productCode = p.productCode
+    WHERE od.orderNumber = p_orderNumber;
+    
+    RETURN totalDiscount;
+END;
+
+/* 3. IsOffManager: Devolverá un valor booleano indicando si ese empleado es el gerente de la oficina
+asociada. */
+
+CREATE FUNCTION IsOffManager(p_employeeNumber INT) 
+RETURNS BOOLEAN
+DETERMINISTIC
+BEGIN
+    DECLARE managerCount INT;
+    
+    SELECT COUNT(*) INTO managerCount
+    FROM employees e
+    WHERE e.employeeNumber = p_employeeNumber
+      AND e.jobTitle LIKE '%Manager%';
+      
+    RETURN managerCount > 0;
+END;
+
+/* 4. GetTotalPayments: Devolverá el total de pagos realizados por ese cliente durante el rango de
+fechas proporcionado. */
+
+CREATE FUNCTION GetTotalPayments(
+    p_customerNumber INT,
+    p_startDate DATE,
+    p_endDate DATE
+) 
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE totalPayments DECIMAL(10,2) DEFAULT 0.00;
+    
+    SELECT SUM(amount) INTO totalPayments
+    FROM payments
+    WHERE customerNumber = p_customerNumber
+      AND paymentDate BETWEEN p_startDate AND p_endDate;
+      
+    RETURN IFNULL(totalPayments, 0.00);
+END;
+
 
 /* Procedimientos Almacenados
 
@@ -11,6 +89,67 @@ to recibirá los detalles necesarios para registrar una nueva orden, incluyendo 
 el orderDate, los productos y la cantidad de cada uno. El procedimiento debe crear la orden y
 actualizar el inventario de los productos involucrados.
 */
+
+DELIMITER $$
+
+CREATE PROCEDURE RegisterNewOrder(
+    IN p_customerNumber INT,
+    IN p_orderDate DATE,
+    IN p_productCodes VARCHAR(1000),
+    IN p_quantities VARCHAR(1000)
+)
+BEGIN
+    DECLARE newOrderNumber INT;
+    DECLARE productCode VARCHAR(15);
+    DECLARE quantityOrdered INT;
+    DECLARE idx INT DEFAULT 1;
+    DECLARE totalProducts INT;
+    
+    -- Iniciar la transacción
+    START TRANSACTION;
+    
+    -- Obtener el siguiente número de orden
+    SELECT IFNULL(MAX(orderNumber), 10000) + 1 INTO newOrderNumber FROM orders;
+    
+    -- Insertar la nueva orden
+    INSERT INTO orders (orderNumber, orderDate, requiredDate, status, customerNumber)
+    VALUES (newOrderNumber, p_orderDate, DATE_ADD(p_orderDate, INTERVAL 7 DAY), 'Processing', p_customerNumber);
+    
+    -- Calcular el número total de productos
+    SET totalProducts = (LENGTH(p_productCodes) - LENGTH(REPLACE(p_productCodes, ',', '')) + 1);
+    
+    WHILE idx <= totalProducts DO
+        -- Extraer el código de producto
+        SET productCode = SUBSTRING_INDEX(SUBSTRING_INDEX(p_productCodes, ',', idx), ',', -1);
+        -- Extraer la cantidad correspondiente
+        SET quantityOrdered = CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(p_quantities, ',', idx), ',', -1) AS UNSIGNED);
+        
+        -- Insertar en orderdetails
+        INSERT INTO orderdetails (orderNumber, productCode, quantityOrdered, priceEach, orderLineNumber)
+        VALUES (
+            newOrderNumber,
+            productCode,
+            quantityOrdered,
+            (SELECT buyPrice FROM products WHERE productCode = productCode),
+            idx
+        );
+        
+        -- Actualizar el inventario
+        UPDATE products
+        SET quantityInStock = quantityInStock - quantityOrdered
+        WHERE productCode = productCode;
+        
+        SET idx = idx + 1;
+    END WHILE;
+    
+    -- Confirmar la transacción
+    COMMIT;
+    
+    -- Retornar el número de la nueva orden
+    SELECT newOrderNumber AS 'NewOrderNumber';
+END$$
+
+DELIMITER ;
 
 /* 2. Procedimiento para actualizar la el estado de un cliente (UpdateCustomerState): El
 procedimiento debe recibir el customerNumber y actualizar el estado del cliente a Deactivate sino
@@ -58,9 +197,71 @@ lesRepToCustomer): Este procedimiento recibirá el employeeNumber y el customerN
 asignará ese empleado como representante de ventas de dicho cliente. Si el cliente ya tiene
 un representante de ventas asignado, deberá actualizarse al nuevo empleado. */
 
+DELIMITER $$
+
+CREATE PROCEDURE AssignSalesRepToCustomer(
+    IN p_employeeNumber INT,
+    IN p_customerNumber INT
+)
+BEGIN
+    -- Verificar si el empleado existe
+    IF NOT EXISTS (SELECT 1 FROM employees WHERE employeeNumber = p_employeeNumber) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Empleado no encontrado.';
+    END IF;
+    
+    -- Verificar si el cliente existe
+    IF NOT EXISTS (SELECT 1 FROM customers WHERE customerNumber = p_customerNumber) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cliente no encontrado.';
+    END IF;
+    
+    -- Asignar o actualizar el representante de ventas
+    UPDATE customers
+    SET salesRepEmployeeNumber = p_employeeNumber
+    WHERE customerNumber = p_customerNumber;
+    
+    -- Confirmar la actualización
+    SELECT 
+        customerNumber, 
+        customerName, 
+        salesRepEmployeeNumber 
+    FROM customers 
+    WHERE customerNumber = p_customerNumber;
+END$$
+
+DELIMITER ;
+
 /* 4. Procedimiento para calcular el total de ventas por empleado en un rango de fechas
 (TotalSalesByEmployee): Este procedimiento recibirá un rango de fechas y un employeeNumber,
 y devolverá el total de ventas que ese empleado ha generado en ese perı́odo. */
+
+DELIMITER $$
+
+CREATE PROCEDURE TotalSalesByEmployee(
+    IN p_employeeNumber INT,
+    IN p_startDate DATE,
+    IN p_endDate DATE,
+    OUT p_totalSales DECIMAL(10,2)
+)
+BEGIN
+    -- Verificar si el empleado existe
+    IF NOT EXISTS (SELECT 1 FROM employees WHERE employeeNumber = p_employeeNumber) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Empleado no encontrado.';
+    END IF;
+    
+    -- Calcular el total de ventas
+    SELECT SUM(od.quantityOrdered * od.priceEach) INTO p_totalSales
+    FROM orders o
+    INNER JOIN orderdetails od ON o.orderNumber = od.orderNumber
+    INNER JOIN customers c ON o.customerNumber = c.customerNumber
+    WHERE c.salesRepEmployeeNumber = p_employeeNumber
+      AND o.orderDate BETWEEN p_startDate AND p_endDate
+      AND o.status = 'Shipped';
+    
+    -- Manejar casos donde no hay ventas
+    SET p_totalSales = IFNULL(p_totalSales, 0.00);
+END$$
+
+DELIMITER ;
 
 
 /* Triggers
@@ -116,9 +317,70 @@ BI): Este trigger se debe ejecutar antes de registrar una nueva orden. Si la sum
 nueva orden más las órdenes previas excede el lı́mite de crédito del cliente, el trigger debe cancelar
 la inserción de la orden. */
 
+DELIMITER $$
+
+CREATE TRIGGER ValidateCustomerCreditLimitBI 
+BEFORE INSERT ON orders
+FOR EACH ROW
+BEGIN
+    DECLARE totalExistingOrders DECIMAL(10,2);
+    DECLARE newOrderTotal DECIMAL(10,2);
+    DECLARE creditLimit DECIMAL(10,2);
+
+    -- Obtener el límite de crédito del cliente
+    SELECT creditLimit INTO creditLimit 
+    FROM customers 
+    WHERE customerNumber = NEW.customerNumber;
+
+    -- Calcular el total de órdenes existentes (sumando el total de cada orden)
+    SELECT IFNULL(SUM(od.quantityOrdered * od.priceEach), 0.00) INTO totalExistingOrders
+    FROM orders o
+    INNER JOIN orderdetails od ON o.orderNumber = od.orderNumber
+    WHERE o.customerNumber = NEW.customerNumber
+      AND o.status NOT IN ('Cancelled');
+
+    -- Calcular el total de la nueva orden
+    SELECT IFNULL(SUM(od.quantityOrdered * od.priceEach), 0.00) INTO newOrderTotal
+    FROM orderdetails od
+    WHERE od.orderNumber = NEW.orderNumber;
+
+    -- Verificar si el límite de crédito será excedido
+    IF (totalExistingOrders + newOrderTotal) > creditLimit THEN
+        SIGNAL SQLSTATE '45000' 
+            SET MESSAGE_TEXT = 'Excede el límite de crédito del cliente.';
+    END IF;
+END$$
+
+DELIMITER ;
+
 /* 4. Trigger para actualizar el estado de un cliente a Activate (CustomerStatusBI): Antes
 de que se realice una orden, deberá verificar que si ya está activo no haga actualización. */
+DELIMITER $$
 
+CREATE TRIGGER CustomerStatusBI 
+BEFORE INSERT ON orders
+FOR EACH ROW
+BEGIN
+    DECLARE currentStatus VARCHAR(20);
+
+    -- Obtener el estado actual del cliente
+    SELECT state INTO currentStatus 
+    FROM customers 
+    WHERE customerNumber = NEW.customerNumber;
+
+    -- Verificar el estado del cliente
+    IF currentStatus = 'Active' THEN
+        -- No hacer nada si ya está activo
+        NULL;
+    ELSE
+        -- Opcional: Actualizar el estado del cliente a 'Active' si es necesario
+        UPDATE customers 
+        SET state = 'Active' 
+        WHERE customerNumber = NEW.customerNumber;
+    END IF;
+END$$
+
+DELIMITER ;
 
 /* Vistas
 
