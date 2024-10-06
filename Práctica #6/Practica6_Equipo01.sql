@@ -4,19 +4,19 @@
 -- * Rivera Morales David
 -- * Tapia Hernandez Carlos Alberto
 
-/* 
+/* Funciones
 
- Funciones
- */
+1. TotalOrders. Deberá devolver el total de órdenes realizadas por ese cliente en el año proporcionado. */
 
- /* 1. TotalOrders. Deberá devolver el total de órdenes realizadas por ese cliente en el año proporcionado. */
-
- CREATE FUNCTION TotalOrders(p_customerNumber INT, p_year INT) 
+CREATE FUNCTION TotalOrders(p_customerNumber INT, p_year INT) 
 RETURNS INT
 DETERMINISTIC
 BEGIN
     DECLARE total INT;
-    
+    -- Primero se cuentan todas las filas en la tabla 'orders'
+    -- que coincidan con el 'customerNumber' proporcionado y el año de la 'orderDate'.
+    -- Luego se filtran las órdenes por el 'customerNumber' y el año.
+    -- de 'orderDate' .
     SELECT COUNT(*) INTO total
     FROM orders
     WHERE customerNumber = p_customerNumber
@@ -34,10 +34,15 @@ RETURNS DECIMAL(10,2)
 DETERMINISTIC
 BEGIN
     DECLARE totalDiscount DECIMAL(10,2) DEFAULT 0.00;
-    
+    -- Primero se calcula la suma de los descuentos por cada producto en la orden.
+    -- Luego se hace un join entre 'orderdetails' (od) y 'products' (p) para obtener
+    -- el precio sugerido (MSRP) y el precio real (priceEach) de cada producto.
+    -- La diferencia entre MSRP y priceEach se multiplica por la cantidad ordenada (quantityOrdered)
+    -- para obtener el descuento por producto.
     SELECT SUM((p.MSRP - od.priceEach) * od.quantityOrdered) INTO totalDiscount
     FROM orderdetails od
     INNER JOIN products p ON od.productCode = p.productCode
+    -- Filtramos los detalles de la orden por el 'orderNumber' proporcionado a la función.
     WHERE od.orderNumber = p_orderNumber;
     
     RETURN totalDiscount;
@@ -51,7 +56,8 @@ RETURNS BOOLEAN
 DETERMINISTIC
 BEGIN
     DECLARE managerCount INT;
-    
+    -- Se cuenta cuántas veces el título del empleado contiene 'Manager'.
+    -- Retorna TRUE si el empleado es un gerente, de lo contrario, FALSE.
     SELECT COUNT(*) INTO managerCount
     FROM employees e
     WHERE e.employeeNumber = p_employeeNumber
@@ -72,6 +78,10 @@ RETURNS DECIMAL(10,2)
 DETERMINISTIC
 BEGIN
     DECLARE totalPayments DECIMAL(10,2) DEFAULT 0.00;
+
+    -- Se ejecuta un SELECT SUM() para sumar los montos de los pagos en la tabla 'payments'.
+    -- Luego se filtran los pagos por 'customerNumber' y el rango de fechas entre 'p_startDate' y 'p_endDate'.
+    -- El resultado de la suma se almacena en la variable 'totalPayments'.
     
     SELECT SUM(amount) INTO totalPayments
     FROM payments
@@ -90,8 +100,6 @@ el orderDate, los productos y la cantidad de cada uno. El procedimiento debe cre
 actualizar el inventario de los productos involucrados.
 */
 
-DELIMITER $$
-
 CREATE PROCEDURE RegisterNewOrder(
     IN p_customerNumber INT,
     IN p_orderDate DATE,
@@ -105,17 +113,20 @@ BEGIN
     DECLARE idx INT DEFAULT 1;
     DECLARE totalProducts INT;
     
-    -- Iniciar la transacción
+    -- Quisimos ocupar TRANSACTION para este procedimiento 
+    -- para experimentar. Entendemos que para que una transacción
+    -- funcione, todas sus partes deben funcionar. Esto fue lo que
+    -- nos hizo probar esto.
     START TRANSACTION;
     
-    -- Obtener el siguiente número de orden
+    -- Se obtiene el siguiente número de orden
     SELECT IFNULL(MAX(orderNumber), 10000) + 1 INTO newOrderNumber FROM orders;
     
-    -- Insertar la nueva orden
+    -- Se inserta la nueva orden
     INSERT INTO orders (orderNumber, orderDate, requiredDate, status, customerNumber)
     VALUES (newOrderNumber, p_orderDate, DATE_ADD(p_orderDate, INTERVAL 7 DAY), 'Processing', p_customerNumber);
     
-    -- Calcular el número total de productos
+    -- Se calcula el número total de productos
     SET totalProducts = (LENGTH(p_productCodes) - LENGTH(REPLACE(p_productCodes, ',', '')) + 1);
     
     WHILE idx <= totalProducts DO
@@ -124,7 +135,7 @@ BEGIN
         -- Extraer la cantidad correspondiente
         SET quantityOrdered = CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(p_quantities, ',', idx), ',', -1) AS UNSIGNED);
         
-        -- Insertar en orderdetails
+        -- Insertar en orderdetails con la información necesaria.
         INSERT INTO orderdetails (orderNumber, productCode, quantityOrdered, priceEach, orderLineNumber)
         VALUES (
             newOrderNumber,
@@ -134,7 +145,7 @@ BEGIN
             idx
         );
         
-        -- Actualizar el inventario
+        -- Se actualiza el inventario
         UPDATE products
         SET quantityInStock = quantityInStock - quantityOrdered
         WHERE productCode = productCode;
@@ -142,14 +153,12 @@ BEGIN
         SET idx = idx + 1;
     END WHILE;
     
-    -- Confirmar la transacción
+    -- Se confirma la transacción
     COMMIT;
     
-    -- Retornar el número de la nueva orden
+    -- Y finalmente se regresa el número de la nueva orden.
     SELECT newOrderNumber AS 'NewOrderNumber';
-END$$
-
-DELIMITER ;
+END;
 
 /* 2. Procedimiento para actualizar la el estado de un cliente (UpdateCustomerState): El
 procedimiento debe recibir el customerNumber y actualizar el estado del cliente a Deactivate sino
@@ -158,7 +167,6 @@ su representante de ventas a NULL, asegurando que las actualizaciones no rompan 
 referencial con otros registros.
 */
 
-
 CREATE PROCEDURE UpdateCustomerState(
     IN customerNumber INT
 )
@@ -166,38 +174,42 @@ BEGIN
     DECLARE pendientes INT;
     DECLARE yearLstOrder YEAR;
    
+    -- Se busca la cantidad de ordenes pendientes dado su estatus.
     SELECT COUNT(o.orderNumber) INTO pendientes
     FROM orders o
     WHERE o.customerNumber = customerNumber
       AND o.status NOT IN ('Resolved', 'Cancelled');
    
+    -- Si no hay pendientes, el cliente pasa a 'Deactivate'.
     IF pendientes = 0 THEN
         UPDATE customers
         SET state = 'Deactivate'
         WHERE customerNumber = customerNumber;
 
-        
+    
     SELECT EXTRACT(YEAR FROM MAX(o.orderDate)) INTO yearLstOrder
-        FROM orders o
-        WHERE o.customerNumber = customerNumber;
+    FROM orders o
+    WHERE o.customerNumber = customerNumber;
 
-        IF yearLstOrder = (EXTRACT(YEAR FROM CURDATE()) - 1) THEN
-            UPDATE customers
-            SET salesRepEmployeeNumber = NULL
-            WHERE customerNumber = customerNumber;
-        END IF;
-    ELSE
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'No se aplicó la operación: el cliente tiene órdenes pendientes';
+    -- Se verifica si el año de la última orden es el año anterior al actual.
+    IF yearLstOrder = (EXTRACT(YEAR FROM CURDATE()) - 1) THEN
+        -- Si es así, se actualiza el representante de ventas del cliente a NULL,
+        -- lo que indica que el cliente ya no tiene un representante asignado.
+        UPDATE customers
+        SET salesRepEmployeeNumber = NULL
+        WHERE customerNumber = customerNumber;
     END IF;
+ELSE
+    -- Si el cliente tiene órdenes pendientes, se lanza un error y se cancela la operación.
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'No se aplicó la operación: el cliente tiene órdenes pendientes';
+END IF;
 END;
 
 /* 3. Procedimiento para asignar un empleado como representante de ventas (AssignSa-
 lesRepToCustomer): Este procedimiento recibirá el employeeNumber y el customerNumber, y
 asignará ese empleado como representante de ventas de dicho cliente. Si el cliente ya tiene
 un representante de ventas asignado, deberá actualizarse al nuevo empleado. */
-
-DELIMITER $$
 
 CREATE PROCEDURE AssignSalesRepToCustomer(
     IN p_employeeNumber INT,
@@ -226,15 +238,11 @@ BEGIN
         salesRepEmployeeNumber 
     FROM customers 
     WHERE customerNumber = p_customerNumber;
-END$$
-
-DELIMITER ;
+END;
 
 /* 4. Procedimiento para calcular el total de ventas por empleado en un rango de fechas
 (TotalSalesByEmployee): Este procedimiento recibirá un rango de fechas y un employeeNumber,
 y devolverá el total de ventas que ese empleado ha generado en ese perı́odo. */
-
-DELIMITER $$
 
 CREATE PROCEDURE TotalSalesByEmployee(
     IN p_employeeNumber INT,
@@ -259,9 +267,7 @@ BEGIN
     
     -- Manejar casos donde no hay ventas
     SET p_totalSales = IFNULL(p_totalSales, 0.00);
-END$$
-
-DELIMITER ;
+END;
 
 
 /* Triggers
@@ -271,7 +277,6 @@ ductBD): Este trigger debe activarse antes de intentar eliminar un producto y ve
 producto está involucrado en alguna orden que aún no ha sido enviada. Si es ası́, debe lanzar un
 error y cancelar la eliminación.
 */
-
 
 CREATE TRIGGER PreventProductBD BEFORE DELETE ON products FOR EACH ROW
 BEGIN
@@ -297,8 +302,8 @@ END;
 (ProductInventorySaleAU): Este trigger se debe activar después de insertar una nueva orden.
 El propósito es actualizar la cantidad disponible de los productos en el inventario tras la venta de
 esos productos. */
--- Creo que para MySQL se debe usar SELECT antes
 
+CREATE TRIGGER ProductInventorySaleAU AFTER INSERT ON orderdetails FOR EACH ROW
 BEGIN 
     DECLARE currStock INT;
     -- Se revisa si la cantidad de productos en stock es suficiente para realizar la venta y se almacena en una variable currStock
@@ -321,8 +326,6 @@ END;
 BI): Este trigger se debe ejecutar antes de registrar una nueva orden. Si la suma del monto de la
 nueva orden más las órdenes previas excede el lı́mite de crédito del cliente, el trigger debe cancelar
 la inserción de la orden. */
-
-DELIMITER $$
 
 CREATE TRIGGER ValidateCustomerCreditLimitBI 
 BEFORE INSERT ON orders
@@ -354,13 +357,10 @@ BEGIN
         SIGNAL SQLSTATE '45000' 
             SET MESSAGE_TEXT = 'Excede el límite de crédito del cliente.';
     END IF;
-END$$
-
-DELIMITER ;
+END;
 
 /* 4. Trigger para actualizar el estado de un cliente a Activate (CustomerStatusBI): Antes
 de que se realice una orden, deberá verificar que si ya está activo no haga actualización. */
-DELIMITER $$
 
 CREATE TRIGGER CustomerStatusBI 
 BEFORE INSERT ON orders
@@ -378,14 +378,12 @@ BEGIN
         -- No hacer nada si ya está activo
         NULL;
     ELSE
-        -- Opcional: Actualizar el estado del cliente a 'Active' si es necesario
+        -- Se actualiza el estado del cliente a 'Active' si es necesario
         UPDATE customers 
         SET state = 'Active' 
         WHERE customerNumber = NEW.customerNumber;
     END IF;
-END$$
-
-DELIMITER ;
+END;
 
 /* Vistas
 
@@ -393,7 +391,7 @@ DELIMITER ;
 View): Esta vista debe incluir el nombre del cliente, la cantidad de órdenes realizadas, el total de
 pagos recibidos, y el estado actual de cada una de sus órdenes.
 */
------
+
 CREATE VIEW CustomerOrderHistoryView AS 
 	SELECT c.customerName, COUNT(o.orderNumber) as 'Cantidad de Ordenes', 
 		SUM(p.amount) as 'Total de Pagos Recibidos', o.status as 'Estado de la Orden'
