@@ -119,6 +119,43 @@ Crea una transacción que permita eliminar empleados de la tabla employees, exce
 están relacionados con órdenes no concluidas. Si se intenta eliminar un empleado con órdenes no
 concluidas, la transacción debe hacer un ROLLBACK. */
 
+START TRANSACTION;
+
+-- Handler para hacer rollback  alguna transacción transaction en caso de alguna excepción.
+DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+BEGIN
+    ROLLBACK;
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Transaction failed, rolled back.';
+END;
+
+-- Revisa si el employee existe
+IF NOT EXISTS (
+    SELECT 1 
+    FROM employees 
+    WHERE employeeNumber = 'EMPLOYEE_NUMBER'
+) THEN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Employee does not exist.';
+END IF;
+
+-- Check if the employee has any pending orders (que no hayan estado enviadas "Shipped")
+IF EXISTS (
+    SELECT 1 
+    FROM orders o
+    WHERE o.employeeNumber = 'EMPLOYEE_NUMBER'
+    AND o.status != 'Shipped'
+    FOR UPDATE -- Lock the rows to prevent race conditions during deletion
+) THEN
+    -- If there are pending orders, rollback and raise an error
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot delete employee with pending orders.';
+ELSE
+    -- If no pending orders, proceed to delete the employee
+    DELETE FROM employees 
+    WHERE employeeNumber = 'EMPLOYEE_NUMBER';
+END IF;
+
+-- If everything is fine, commit the transaction
+COMMIT;
+
 /* Indices
 
 1. Crea un ı́ndice en la columna customerNumber de la tabla orders. */
