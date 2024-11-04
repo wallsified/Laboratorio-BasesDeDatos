@@ -30,3 +30,17 @@ CALL P8_FBD.create_new_order(103, 'S10_1678', 5, 95.70);
  * SQL Error [1370] [42000]: (conn=23) execute command denied to user 'user_viewer'@'localhost' for routine 'P8_FBD.create_new_order'
  */
 
+
+/*
+ * En general, estos errores ocupan por la cantidad de permisos que tiene el usuario. Un usuario con este nivel de
+ * acceso tiene sentido en escenarios donde, por ejemplo, se busca hacer una revisión de los productos y de las
+ * órdenes en la BD. Por ejemplo, cuando una persona busca hacer un inventario de los productos que se venden, 
+ * o si algún administrativo (ajeno a la BD pero de una misma empresa) quisiese obtener un historial de todas 
+ * las órdenes que se han hecho, etc. 
+ * 
+ * Se vuelve necesario tener un usuario que solo tenga este nivel de acceso para prevenir inserciones y/o 
+ * modificaciones no permitadas (ya sea por acceso o por la información que se busca alterar). Incluso, en un
+ * escenario de que un tercero tenga las contraseñas de acceso, limitar a estos permisos evita nuevamente lo
+ * anterior. 
+ */
+

@@ -17,12 +17,13 @@ CREATE USER 'user_manager'@'localhost' IDENTIFIED BY 'Youcanmanage0';
 
 -- Permisos de ejecución en todos los procedimientos de la base de datos. 
 GRANT EXECUTE ON P8_FBD.* TO 'user_manager'@'localhost';
-
+-- Permisos SELECT, INSERT, DELETE en las tablas particulares.
 GRANT SELECT, INSERT, UPDATE, DELETE ON P8_FBD.orderdetails TO 'user_manager'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON P8_FBD.orders TO 'user_manager'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON P8_FBD.employees TO 'user_manager'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON P8_FBD.payments TO 'user_manager'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON P8_FBD.products TO 'user_manager'@'localhost';
+-- Permisos de SELECT en el resto de las tablas. 
 GRANT SELECT ON P8_FBD.* TO 'user_manager'@'localhost';
 
 /*
@@ -62,42 +63,6 @@ GRANT 'user_viewer_role' TO 'user_viewer'@'localhost';
 SET DEFAULT ROLE 'user_viewer_role' FOR 'user_viewer'@'localhost';
 
 /*
-* El archivo debe además debe
-* • Exhibir el resultado de realizar pruebas de DDL y DML, así como la llamada a procedimientos.
-* • Explicar brevemente la relaci´on entre roles y privilegios.
-* • Contener comentarios que deben mostrar el error, la razón del mismo, cómo corregirlo (o evitarlo) y
-* 	 argumentación respecto impacto tiene esto en la seguridad del esquema, así como explicar en que contextos
-*   es adecuado designar los permisos solicitados a usuarios (de ser necesario, argumentar la asignación
-*   de política de expiración).
-*/
-
-/*
- Resultados Esperados:
- 
- user_manager:
- - Debe poder realizar todas las operaciones CRUD (CREAR, LEER, ACTUALIZAR, ELIMINAR)
- - Debe poder ejecutar procedimientos almacenados
- - Debe tener acceso a todas las tablas
- 
- user_viewer:
- - Solo debe poder realizar operaciones SELECT
- - NO debe poder realizar INSERT, UPDATE o DELETE
- - NO debe poder ejecutar procedimientos almacenados
- 
- Errores comunes y soluciones:
- 1. Acceso denegado para user_viewer en INSERT/UPDATE/DELETE
- - Este es el comportamiento esperado
- - Solución: Usar user_manager para estas operaciones
- 
- 2. No se puede ejecutar el procedimiento almacenado
- - Verificar si se otorgaron privilegios EXECUTE
- - Solución: Otorgar privilegios EXECUTE a user_manager_role
- 
- 3. Rol no activo
- - Solución: SET DEFAULT ROLE ALL TO 'nombre_usuario'@'localhost';
- 
- Implicaciones de seguridad:
- - user_viewer tiene acceso de solo lectura, perfecto para roles de reportes y análisis
- - user_manager tiene acceso CRUD completo, adecuado para cuentas de servicio de aplicaciones
- - La separación de responsabilidades evita modificaciones no autorizadas de datos
+ * Para revisar las pruebas y comentarios de user_manager y user_viewer se deben revisar los
+ * archivos 'User_Manager_Queries.sql' y 'User_Viewer_Queries.sql' respectivamente.  
  */
