@@ -16,40 +16,6 @@
 				"closeIdleConnection": true,
 				"auth-model": "native"
 			}
-		},
-		"mariaDB-192f533112b-2b392558f0d9b357": {
-			"provider": "mysql",
-			"driver": "mariaDB",
-			"name": "user_manager",
-			"save-password": true,
-			"configuration": {
-				"host": "localhost",
-				"port": "3306",
-				"database": "P8_FBD",
-				"url": "jdbc:mariadb://localhost:3306/P8_FBD",
-				"configurationType": "MANUAL",
-				"home": "/usr",
-				"type": "dev",
-				"closeIdleConnection": true,
-				"auth-model": "native"
-			}
-		},
-		"mariaDB-192f542897d-43e2558924f05e28": {
-			"provider": "mysql",
-			"driver": "mariaDB",
-			"name": "user_viewer",
-			"save-password": true,
-			"configuration": {
-				"host": "localhost",
-				"port": "3306",
-				"database": "P8_FBD",
-				"url": "jdbc:mariadb://localhost:3306/P8_FBD",
-				"configurationType": "MANUAL",
-				"home": "/usr",
-				"type": "dev",
-				"closeIdleConnection": true,
-				"auth-model": "native"
-			}
 		}
 	},
 	"connection-types": {

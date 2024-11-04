@@ -16,8 +16,7 @@
 CREATE USER 'user_manager'@'localhost' IDENTIFIED BY 'Youcanmanage0';
 
 -- Permisos de ejecución en todos los procedimientos de la base de datos. 
--- ! Falta arreglar los procedimientos almacenados para activar este permiso!
--- GRANT EXECUTE ON P8_FBD.* TO 'user_manager'@'localhost';
+GRANT EXECUTE ON P8_FBD.* TO 'user_manager'@'localhost';
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON P8_FBD.orderdetails TO 'user_manager'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON P8_FBD.orders TO 'user_manager'@'localhost';
@@ -52,14 +51,15 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON P8_FBD.orders TO 'user_manager_role';
 GRANT SELECT, INSERT, UPDATE, DELETE ON P8_FBD.employees TO 'user_manager_role';
 GRANT SELECT, INSERT, UPDATE, DELETE ON P8_FBD.payments TO 'user_manager_role';
 GRANT SELECT, INSERT, UPDATE, DELETE ON P8_FBD.products TO 'user_manager_role';
+GRANT EXECUTE ON P8_FBD.* TO 'user_manager_role';
 GRANT SELECT ON P8_FBD.* TO 'user_manager_role';
--- Sigue faltanto permiso EXECUTE
 GRANT 'user_manager_role' TO 'user_manager'@'localhost';
 
 
 CREATE ROLE 'user_viewer_role';
 GRANT SELECT ON P8_FBD.* TO 'user_viewer_role';
 GRANT 'user_viewer_role' TO 'user_viewer'@'localhost';
+SET DEFAULT ROLE 'user_viewer_role' FOR 'user_viewer'@'localhost';
 
 /*
 * El archivo debe además debe
@@ -71,116 +71,6 @@ GRANT 'user_viewer_role' TO 'user_viewer'@'localhost';
 *   de política de expiración).
 */
 
--- Pruebas para user_manager
--- 1. Conectar como user_manager
--- mysql -u user_manager -p
--- Contraseña: Youcanmanage0
--- Probar permisos SELECT
-SELECT
-    *
-FROM
-    P8_FBD.products
-LIMIT
-    5;
-
-SELECT
-    *
-FROM
-    P8_FBD.orders
-LIMIT
-    5;
-
--- Probar permisos INSERT
-INSERT INTO
-    P8_FBD.products
-VALUES
-    (
-        'TEST001',
-        'Producto Prueba',
-        'Classic Cars',
-        '1:10',
-        'Vendedor Prueba',
-        'Descripción de Prueba',
-        100,
-        50.00,
-        95.70
-    );
-
--- Probar permisos UPDATE
-UPDATE
-    P8_FBD.products
-SET
-    quantityInStock = 99
-WHERE
-    productCode = 'TEST001';
-
--- Probar permisos DELETE
-DELETE FROM
-    P8_FBD.products
-WHERE
-    productCode = 'TEST001';
-
--- Probar procedimientos almacenados
-CALL P8_FBD.create_new_order(103, 'S10_1678', 5, 95.70);
-
-CALL P8_FBD.update_product_price('S10_1678', 105.99);
-
--- Pruebas para user_viewer
--- 1. Conectar como user_viewer
--- mysql -u user_viewer -p
--- Contraseña: Youcanonlyselect0
--- Probar permisos SELECT (debería funcionar)
-SELECT
-    *
-FROM
-    P8_FBD.products
-LIMIT
-    5;
-
-SELECT
-    *
-FROM
-    P8_FBD.orders
-LIMIT
-    5;
-
--- Probar permisos INSERT (debería fallar)
-INSERT INTO
-    P8_FBD.products
-VALUES
-    (
-        'TEST002',
-        'Producto Prueba',
-        'Classic Cars',
-        '1:10',
-        'Vendedor Prueba',
-        'Descripción de Prueba',
-        100,
-        50.00,
-        95.70
-    );
-
--- Probar permisos UPDATE (debería fallar)
-UPDATE
-    P8_FBD.products
-SET
-    quantityInStock = 99
-WHERE
-    productCode = 'S10_1678';
-
--- Probar permisos DELETE (debería fallar)
-DELETE FROM
-    P8_FBD.products
-WHERE
-    productCode = 'S10_1678';
-
--- Probar procedimientos almacenados (debería fallar)
-CALL P8_FBD.create_new_order(103, 'S10_1678', 5, 95.70);
-
--- Probar asignación de rol
-SELECT
-    CURRENT_ROLE();
-
 /*
  Resultados Esperados:
  
@@ -188,13 +78,11 @@ SELECT
  - Debe poder realizar todas las operaciones CRUD (CREAR, LEER, ACTUALIZAR, ELIMINAR)
  - Debe poder ejecutar procedimientos almacenados
  - Debe tener acceso a todas las tablas
- - Debe poder ver su rol asignado (user_manager_role)
  
  user_viewer:
  - Solo debe poder realizar operaciones SELECT
  - NO debe poder realizar INSERT, UPDATE o DELETE
  - NO debe poder ejecutar procedimientos almacenados
- - Debe poder ver su rol asignado (user_viewer_role)
  
  Errores comunes y soluciones:
  1. Acceso denegado para user_viewer en INSERT/UPDATE/DELETE
