@@ -70,3 +70,146 @@ GRANT 'user_viewer_role' TO 'user_viewer'@'localhost';
 *   es adecuado designar los permisos solicitados a usuarios (de ser necesario, argumentar la asignación
 *   de política de expiración).
 */
+
+-- Pruebas para user_manager
+-- 1. Conectar como user_manager
+-- mysql -u user_manager -p
+-- Contraseña: Youcanmanage0
+-- Probar permisos SELECT
+SELECT
+    *
+FROM
+    P8_FBD.products
+LIMIT
+    5;
+
+SELECT
+    *
+FROM
+    P8_FBD.orders
+LIMIT
+    5;
+
+-- Probar permisos INSERT
+INSERT INTO
+    P8_FBD.products
+VALUES
+    (
+        'TEST001',
+        'Producto Prueba',
+        'Classic Cars',
+        '1:10',
+        'Vendedor Prueba',
+        'Descripción de Prueba',
+        100,
+        50.00,
+        95.70
+    );
+
+-- Probar permisos UPDATE
+UPDATE
+    P8_FBD.products
+SET
+    quantityInStock = 99
+WHERE
+    productCode = 'TEST001';
+
+-- Probar permisos DELETE
+DELETE FROM
+    P8_FBD.products
+WHERE
+    productCode = 'TEST001';
+
+-- Probar procedimientos almacenados
+CALL P8_FBD.create_new_order(103, 'S10_1678', 5, 95.70);
+
+CALL P8_FBD.update_product_price('S10_1678', 105.99);
+
+-- Pruebas para user_viewer
+-- 1. Conectar como user_viewer
+-- mysql -u user_viewer -p
+-- Contraseña: Youcanonlyselect0
+-- Probar permisos SELECT (debería funcionar)
+SELECT
+    *
+FROM
+    P8_FBD.products
+LIMIT
+    5;
+
+SELECT
+    *
+FROM
+    P8_FBD.orders
+LIMIT
+    5;
+
+-- Probar permisos INSERT (debería fallar)
+INSERT INTO
+    P8_FBD.products
+VALUES
+    (
+        'TEST002',
+        'Producto Prueba',
+        'Classic Cars',
+        '1:10',
+        'Vendedor Prueba',
+        'Descripción de Prueba',
+        100,
+        50.00,
+        95.70
+    );
+
+-- Probar permisos UPDATE (debería fallar)
+UPDATE
+    P8_FBD.products
+SET
+    quantityInStock = 99
+WHERE
+    productCode = 'S10_1678';
+
+-- Probar permisos DELETE (debería fallar)
+DELETE FROM
+    P8_FBD.products
+WHERE
+    productCode = 'S10_1678';
+
+-- Probar procedimientos almacenados (debería fallar)
+CALL P8_FBD.create_new_order(103, 'S10_1678', 5, 95.70);
+
+-- Probar asignación de rol
+SELECT
+    CURRENT_ROLE();
+
+/*
+ Resultados Esperados:
+ 
+ user_manager:
+ - Debe poder realizar todas las operaciones CRUD (CREAR, LEER, ACTUALIZAR, ELIMINAR)
+ - Debe poder ejecutar procedimientos almacenados
+ - Debe tener acceso a todas las tablas
+ - Debe poder ver su rol asignado (user_manager_role)
+ 
+ user_viewer:
+ - Solo debe poder realizar operaciones SELECT
+ - NO debe poder realizar INSERT, UPDATE o DELETE
+ - NO debe poder ejecutar procedimientos almacenados
+ - Debe poder ver su rol asignado (user_viewer_role)
+ 
+ Errores comunes y soluciones:
+ 1. Acceso denegado para user_viewer en INSERT/UPDATE/DELETE
+ - Este es el comportamiento esperado
+ - Solución: Usar user_manager para estas operaciones
+ 
+ 2. No se puede ejecutar el procedimiento almacenado
+ - Verificar si se otorgaron privilegios EXECUTE
+ - Solución: Otorgar privilegios EXECUTE a user_manager_role
+ 
+ 3. Rol no activo
+ - Solución: SET DEFAULT ROLE ALL TO 'nombre_usuario'@'localhost';
+ 
+ Implicaciones de seguridad:
+ - user_viewer tiene acceso de solo lectura, perfecto para roles de reportes y análisis
+ - user_manager tiene acceso CRUD completo, adecuado para cuentas de servicio de aplicaciones
+ - La separación de responsabilidades evita modificaciones no autorizadas de datos
+ */
