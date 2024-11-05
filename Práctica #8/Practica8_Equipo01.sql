@@ -13,6 +13,11 @@
 * • Permisos para manejar transacciones.
 */
 
+/*
+* *   Eliminamos el usuario si es que existe
+*/
+DROP USER IF EXISTS 'user_manager'@'localhost';
+
 CREATE USER 'user_manager'@'localhost' IDENTIFIED BY 'Youcanmanage0';
 
 -- Permisos de ejecución en todos los procedimientos de la base de datos. 
@@ -31,6 +36,11 @@ GRANT SELECT ON P8_FBD.* TO 'user_manager'@'localhost';
 * 	• Permisos solo de lectura (SELECT) sobre todas las tablas en la base de datos.
 * 	• Sin permisos para modificar datos o ejecutar procedimientos almacenados.
 */
+
+/*
+* *   Eliminamos el usuario si es que existe
+*/
+DROP USER IF EXISTS 'user_viewer'@'localhost';
 
 CREATE USER 'user_viewer'@'localhost' IDENTIFIED BY 'Youcanonlyselect0';
 GRANT SELECT ON P8_FBD.* TO 'user_viewer'@'localhost';
