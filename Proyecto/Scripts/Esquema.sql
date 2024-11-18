@@ -66,7 +66,7 @@ CREATE TABLE Ticket (
     ID_Ticket INT PRIMARY KEY,
     Titulo VARCHAR(100) NOT NULL,
     Descripcion TEXT NOT NULL,
-    Status VARCHAR(20) NOT NULL CHECK (Status IN ('Abierto', 'En Proceso', 'Cerrado')),
+    Status VARCHAR(20) NOT NULL CHECK (Status IN ('Abierto', 'En Proceso', 'Cerrado')),Sa
 -- Solo estos estados son permitidos
 Prioridad VARCHAR(20) NOT NULL CHECK (Prioridad IN ('Baja', 'Media', 'Alta')),
 -- Solo estas prioridades son permitidas
@@ -104,7 +104,7 @@ CREATE TABLE Asignacion (
     FechaAsignacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ID_Ticket INT UNIQUE NOT NULL,
 -- Garantiza la cardinalidad 1:1 con Ticket
-ID_Tecnico INT NOT NULL,
+    ID_Tecnico INT NOT NULL,
     FOREIGN KEY (ID_Ticket) REFERENCES Ticket(ID_Ticket) ON
 DELETE
 	RESTRICT
