@@ -22,6 +22,55 @@
  * inventario (desde la aplicación).
  */
 
+/**
+ * Procedimiento permite a múltiples usuarios seleccionar productos sin interferir con el inventario.
+ * Se seleccionan los detalles del producto especificado por el código del producto sin bloquear 
+ * el inventario.
+ * 
+ * Parámetros de Entrada:
+ * - IN codigoProducto (VARCHAR(15)): El código del producto que se desea seleccionar.
+ * 
+ * Parámetros de Salida:
+ * - OUT nombreProducto (VARCHAR(70)): El nombre del producto.
+ * - OUT lineaProducto (VARCHAR(50)): La línea del producto.
+ * - OUT escalaProducto (VARCHAR(10)): La escala del producto.
+ * - OUT proveedorProducto (VARCHAR(50)): El proveedor del producto.
+ * - OUT descripcionProducto (TEXT): La descripción del producto.
+ * - OUT cantidadEnStock (INT): La cantidad del producto en stock.
+ * - OUT precioCompra (DECIMAL(10, 2)): El precio de compra del producto.
+ * - OUT precioVentaSugerido (DECIMAL(10, 2)): El precio de venta sugerido del producto.
+ * 
+ *  Ejemplo de Uso:
+ *  CALL SeleccionarProducto('S10_1678', @nombreProducto, @lineaProducto, @escalaProducto, @proveedorProducto, @descripcionProducto, @cantidadEnStock, @precioCompra, @precioVentaSugerido);
+ * 
+ *  Notas:
+ * - Este procedimiento no realiza ningún bloqueo en el inventario, permitiendo que múltiples usuarios 
+ *   puedan seleccionar productos simultáneamente.
+ */
+DELIMITER //
+
+CREATE PROCEDURE SeleccionarProducto(
+    IN productCode VARCHAR(15),
+    OUT productName VARCHAR(70),
+    OUT productLine VARCHAR(50),
+    OUT productScale VARCHAR(10),
+    OUT productVendor VARCHAR(50),
+    OUT productDescription TEXT,
+    OUT quantityInStock INT,
+    OUT buyPrice DECIMAL(10, 2),
+    OUT MSRP DECIMAL(10, 2)
+)
+BEGIN
+     -- Se seleccionan los detalles del producto sin bloquear el inventario
+    SELECT productName, productLine, productScale, productVendor, productDescription, quantityInStock, buyPrice, MSRP
+    INTO productName, productLine, productScale, productVendor, productDescription, quantityInStock, buyPrice, MSRP
+    FROM products
+    WHERE productCode = productCode;
+END //
+
+DELIMITER ;
+
+
 /*
  * 2. Proceso de Pago: Cuando un usuario procede al pago, se debe asegurar la consistencia mediante 
  * los siguientes pasos:
@@ -43,9 +92,15 @@
  * Procedimiento para verificar si hay suficiente stock.
  * Funcion axiliar para el procedimiento principal ProcesarPagoYOrden.
  * 
+ * Parámetros de Entrada:
  * @param p_productCode El código del producto a verificar.
  * @param p_quantityRequired La cantidad requerida del producto.
+ * 
+ * Parámetros de Salida:
  * @param p_isAvailable El resultado de la verificación de stock.
+ * 
+ * Ejemplo de Uso:
+ * CALL VerificarStock('S10_1678', 5, @isAvailable);
  */
 DELIMITER //
 CREATE PROCEDURE VerificarStock(
@@ -68,12 +123,16 @@ DELIMITER ;
 /**
  * Procedimiento principal para procesar pago y orden.
  * 
+ * Parametros de Entrada:
  * @param p_customerNumber El número de cliente.
  * @param p_checkNumber El número de cheque.
  * @param p_amount El monto del pago.
  * @param p_productCode El código del producto.
  * @param p_quantity La cantidad del producto.
  * @param p_priceEach El precio unitario del producto.
+ * 
+ * Ejemplo de Uso:
+ * CALL ProcesarPagoYOrden(103, 'CH12345', 500.00, 'S10_1678', 5, 100.00);
  */
 DELIMITER //
 CREATE PROCEDURE ProcesarPagoYOrden(
@@ -113,7 +172,7 @@ BEGIN
     -- Crear la orden
     SET v_orderNumber = (SELECT COALESCE(MAX(orderNumber), 0) + 1 FROM orders);
     
-    INSERT INTO orders (orderNumber, orderDate, requiredDate, status, customerNumber)
+    INSERT INTO orders (ordParámetros de Entrada:erNumber, orderDate, requiredDate, status, customerNumber)
     VALUES (v_orderNumber, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 7 DAY), 'In Process', p_customerNumber);
 
     -- Crear detalle de orden
@@ -145,10 +204,14 @@ DELIMITER ;
 /**
  * Procedimiento para actualizar información del cliente (usando bloqueo explícito).
  * 
+ * Parametros de Entrada:
  * @param p_customerNumber El número de cliente.
  * @param p_phone El número de teléfono del cliente.
  * @param p_addressLine1 La dirección del cliente.
  * @param p_city La ciudad del cliente.
+ * 
+ * Ejemplo de Uso:
+ * CALL ActualizarCliente(103, '555-1234', '123 Main St', 'Springfield');
  */
 DELIMITER //
 CREATE PROCEDURE ActualizarCliente(
