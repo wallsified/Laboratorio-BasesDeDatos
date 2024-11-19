@@ -1,7 +1,6 @@
--- Triggers para validaciones adicionales
-DELIMITER / /
+DELIMITER / / -- Aceptada
 -- Trigger para validar que un ticket no pueda cerrarse sin asignación
-CREATE TRIGGER check_ticket_closure BEFORE
+CREATE TRIGGER NoCierreNoAsignacion BEFORE
 UPDATE
 	ON
 	Ticket FOR EACH ROW
@@ -18,9 +17,13 @@ BEGIN
 SET
 		MESSAGE_TEXT = 'No se puede cerrar un ticket sin asignación';
 END IF;
-END / /
+END //
+
+
+DELIMITER $$ 
+
 -- Trigger para validar que solo el técnico asignado pueda hacer comentarios
-CREATE TRIGGER check_comment_technician BEFORE
+CREATE TRIGGER ComentarioAsignadoComentarios BEFORE
 INSERT
 	ON
 	Comentarios FOR EACH ROW
@@ -37,6 +40,6 @@ BEGIN
 SET
 		MESSAGE_TEXT = 'Solo el técnico asignado puede hacer comentarios';
 END IF;
-END / / DELIMITER;
+END$$
 
--- Valdria la pena hacer un procedimiento para insertar comentarios mas rapido.
+DELIMITER ;
