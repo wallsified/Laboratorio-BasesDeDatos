@@ -27,10 +27,13 @@ SET DEFAULT ROLE 'TecnicoSr' FOR 'tecnicoSudo'@'localhost';
 CREATE ROLE 'TecnicoJr';
 GRANT SELECT, UPDATE ON SistemaDeTickets.Ticket TO 'TecnicoJr';
 GRANT SELECT, INSERT, UPDATE ON SistemaDeTickets.Comentarios TO 'TecnicoJr';
--- Segun la documentacion de MariaDB hay que ser especificos con la rutina a 
--- se desea dar permisos de ejecucion, por lo que hay que modificar esto una
--- vez que esten los triggers.
--- GRANT EXECUTE ON SistemaDeTickets.Comentarios TO 'TecnicoJr';
+GRANT SELECT ON SistemaDeTickets.TicketsActivos TO 'TecnicoJr';
+GRANT SELECT ON SistemaDeTickets.TicketsActivosAltaPrioridad TO 'TecnicoJr';
+GRANT SELECT ON SistemaDeTickets.TicketsCerrados TO 'TecnicoJr';
+GRANT SELECT ON SistemaDeTickets.TicketsActivosBajaPrioridad TO 'TecnicoJr';
+GRANT SELECT ON SistemaDeTickets.TicketsActivosMediaPrioridad TO 'TecnicoJr';
+GRANT SELECT ON SistemaDeTickets.AsignacionTicketsAbiertos TO 'TecnicoJr';
+GRANT EXECUTE ON SistemaDeTickets.* TO 'TecnicoJr';
 CREATE USER 'tecnicoSteveRodgers'@'localhost' IDENTIFIED BY 'buckyNeverDied';
 GRANT 'TecnicoJr' TO 'tecnicoSteveRodgers'@'localhost';
 SET DEFAULT ROLE 'TecnicoJr' FOR 'tecnicoSteveRodgers'@'localhost';
@@ -45,9 +48,16 @@ SET DEFAULT ROLE 'TecnicoJr' FOR 'tecnicoSteveRodgers'@'localhost';
  */
 
 CREATE ROLE 'TecnicoMedio';
-GRANT SELECT, UPDATE, INSERT, INDEX ON SistemaDeTickets.Ticket TO 'TecnicoJr';
-GRANT SELECT, UPDATE, INSERT, INDEX ON SistemaDeTickets.Comentarios TO 'TecnicoJr';
-GRANT SELECT, UPDATE, INSERT, INDEX ON SistemaDeTickets.Asignacion TO 'TecnicoJr';
+GRANT SELECT, UPDATE, INSERT, INDEX ON SistemaDeTickets.Ticket TO 'TecnicoMedio';
+GRANT SELECT, UPDATE, INSERT, INDEX ON SistemaDeTickets.Comentarios TO 'TecnicoMedio';
+GRANT SELECT, UPDATE, INSERT, INDEX ON SistemaDeTickets.Asignacion TO 'TecnicoMedio';
+GRANT SELECT ON SistemaDeTickets.TicketsActivos TO 'TecnicoMedio';
+GRANT SELECT ON SistemaDeTickets.TicketsActivosAltaPrioridad TO 'TecnicoMedio';
+GRANT SELECT ON SistemaDeTickets.TicketsCerrados TO 'TecnicoMedio';
+GRANT SELECT ON SistemaDeTickets.TicketsActivosBajaPrioridad TO 'TecnicoMedio';
+GRANT SELECT ON SistemaDeTickets.TicketsActivosMediaPrioridad TO 'TecnicoMedio';
+GRANT SELECT ON SistemaDeTickets.AsignacionTicketsAbiertos TO 'TecnicoMedio';
+GRANT EXECUTE ON SistemaDeTickets.* TO 'TecnicoMedio';
 CREATE USER 'tecnicoBarryAlen'@'localhost' IDENTIFIED BY 'notAnotherFlashpoint';
 GRANT 'TecnicoMedio' TO 'tecnicoBarryAlen'@'localhost';
 SET DEFAULT ROLE 'TecnicoMedio' FOR 'tecnicoBarryAlen'@'localhost';

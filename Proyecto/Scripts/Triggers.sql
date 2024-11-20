@@ -1,5 +1,12 @@
-DELIMITER / / -- Aceptada
+DELIMITER / / 
 -- Trigger para validar que un ticket no pueda cerrarse sin asignación
+
+/*
+* Trigger que valida que un ticket no pueda cerrarse sin asignación.
+* El trigger se dispara antes de actualizar un ticket. Analiza si el nuevo 
+* estado del ticket es 'Cerrado' y si no existe una asignación para el ticket.
+* En caso de que se cumplan ambas condiciones, se lanza una excepción.
+*/
 CREATE TRIGGER NoCierreNoAsignacion BEFORE
 UPDATE
 	ON
@@ -22,7 +29,12 @@ END //
 
 DELIMITER $$ 
 
--- Trigger para validar que solo el técnico asignado pueda hacer comentarios
+/*
+* Trigger que valida que solo el técnico asignado a un ticket pueda hacer comentarios.
+* El trigger se dispara antes de insertar un comentario. Analiza si el técnico que
+* está intentando insertar el comentario es el técnico asignado al ticket. En caso
+* contrario, se lanza una excepción.
+*/
 CREATE TRIGGER ComentarioAsignadoComentarios BEFORE
 INSERT
 	ON

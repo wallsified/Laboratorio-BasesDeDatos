@@ -1,10 +1,24 @@
 DELIMITER $$
 
+/*
+* Función que cuenta el número total de tickets que tienen un estado específico.
+*
+* Parámetros:
+* - estadoTicket (VARCHAR(20)): Estado del ticket a contar
+* 
+* Retorna: 
+* INT - Cantidad de tickets en el estado especificado
+* 
+* Ejemplo de uso:
+* SELECT ContarTicketsPorEstado('Abierto');
+*/
+
 CREATE FUNCTION ContarTicketsPorEstado(estadoTicket VARCHAR(20))
 RETURNS INT
 DETERMINISTIC
 BEGIN
 	DECLARE cantidad INT;
+    -- Contar la cantidad de tickets con el estado especificado
 	SELECT COUNT(*) INTO cantidad FROM Ticket WHERE Status = estadoTicket;
 	RETURN cantidad;
 END$$
@@ -12,6 +26,17 @@ END$$
 DELIMITER ;
 
 DELIMITER $$ 
+
+/*
+* Procedimiento que actualiza el estado de un ticket específico.
+* 
+* Parámetros:
+* - ticket_id (INT): ID del ticket a modificar
+* - nuevo_estado (VARCHAR(20)): Nuevo estado del ticket. Estados válidos: 'Abierto', 'En Proceso', 'Cerrado'
+* 
+* Ejemplo de uso:
+* CALL CambiarEstadoTicket(1, 'En Proceso');
+*/
 
 CREATE PROCEDURE CambiarEstadoTicket(
     IN ticket_id INT,
@@ -39,6 +64,17 @@ DELIMITER ;
 
 DELIMITER $$
 
+/*
+* Procedimiento que asigna un ticket a un técnico específico.
+* Valida que el técnico pertenezca al área del ticket.
+* 
+* Parámetros:
+* - ticket_id (INT): ID del ticket a asignar.
+* - tecnico_id (INT): ID del técnico al que se asignará el ticket.
+* 
+* Ejemplo de uso:
+* CALL AsignarTicket(1, 2);
+*/
 CREATE PROCEDURE AsignarTicket( -- Aceptada
     IN ticket_id INT,
     IN tecnico_id INT
@@ -69,6 +105,17 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
+
+/*
+* Procedimiento que agrega un comentario a un ticket específico.
+* 
+* Parámetros:
+* - ticket_id (INT): ID del ticket al que se agregará el comentario.
+* - comentario (TEXT): Comentario a agregar.
+* 
+* Ejemplo de uso:
+* CALL AgregarComentario(1, 'Se ha iniciado el proceso de revisión.');
+*/
 
 CREATE PROCEDURE AgregarComentario(
     IN ticket_id INT,
