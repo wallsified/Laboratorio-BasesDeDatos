@@ -60,17 +60,18 @@ DELETE
 
 CREATE TABLE CategoriaTicket (
     ID_Categoria INT PRIMARY KEY,
-    Categoria VARCHAR(20) NOT NULL CHECK (Categoria IN ('Mantenimiento', 'Cambio de Equipo', 'Ajuste de Software', 'Ajuste de Hardware')));
+    Categoria VARCHAR(20) NOT NULL CHECK (Categoria IN ('Mantenimiento', 'Cambio de Equipo', 
+   'Ajuste de Software', 'Ajuste de Hardware', 'Redes', 'Soporte General')));
 
 CREATE TABLE Ticket (
     ID_Ticket INT PRIMARY KEY,
     Titulo VARCHAR(100) NOT NULL,
     Descripcion TEXT NOT NULL,
-    Status VARCHAR(20) NOT NULL CHECK (Status IN ('Abierto', 'En Proceso', 'Cerrado')),Sa
--- Solo estos estados son permitidos
-Prioridad VARCHAR(20) NOT NULL CHECK (Prioridad IN ('Baja', 'Media', 'Alta')),
--- Solo estas prioridades son permitidas
-FechaCreacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    Status VARCHAR(20) NOT NULL CHECK (Status IN ('Abierto', 'En Proceso', 'Cerrado')),
+	-- Solo estos estados son permitidos
+	Prioridad VARCHAR(20) NOT NULL CHECK (Prioridad IN ('Baja', 'Media', 'Alta')),
+	-- Solo estas prioridades son permitidas
+	FechaCreacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FechaCierre DATETIME,
     ID_EquipoComputo INT NOT NULL,
     ID_Usuario INT NOT NULL,
