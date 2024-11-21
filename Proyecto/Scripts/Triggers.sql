@@ -1,6 +1,4 @@
 DELIMITER / / 
--- Trigger para validar que un ticket no pueda cerrarse sin asignación
-
 /*
 * Trigger que valida que un ticket no pueda cerrarse sin asignación.
 * El trigger se dispara antes de actualizar un ticket. Analiza si el nuevo 
@@ -35,7 +33,7 @@ DELIMITER $$
 * está intentando insertar el comentario es el técnico asignado al ticket. En caso
 * contrario, se lanza una excepción.
 */
-CREATE TRIGGER ComentarioAsignadoComentarios BEFORE
+CREATE TRIGGER TecnicoAsignadoComentarios BEFORE
 INSERT
 	ON
 	Comentarios FOR EACH ROW

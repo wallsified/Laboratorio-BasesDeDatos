@@ -1,3 +1,5 @@
+USE SistemaDeTickets;
+
 DELIMITER $$
 
 /*
@@ -153,3 +155,4 @@ BEGIN
 END $$
 
 DELIMITER ;
+
