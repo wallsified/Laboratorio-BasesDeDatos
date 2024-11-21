@@ -56,7 +56,7 @@ BEGIN
     
     -- Cambiar el estado del ticket
     UPDATE Ticket
-    SET Estado = nuevo_estado
+    SET Status = nuevo_estado
     WHERE ID_Ticket = ticket_id;
     
     COMMIT;
